@@ -1,10 +1,8 @@
 {
-  "framework": "vite",
   "cleanUrls": true,
   "rewrites": [
-    {
-      "source": "/((?!assets/|vite\\.svg).*)",
-      "destination": "/index.html"
-    }
+    { "source": "/assets/(.*)", "destination": "/assets/$1" },
+    { "source": "/vite.svg", "destination": "/vite.svg" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
