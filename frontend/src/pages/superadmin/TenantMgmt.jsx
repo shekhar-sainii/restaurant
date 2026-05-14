@@ -24,10 +24,19 @@ const TenantMgmt = () => {
     fetchTenants();
   }, []);
 
+  const getAuthToken = () => {
+    try {
+      const saved = localStorage.getItem('sa_auth');
+      return saved ? JSON.parse(saved).token : localStorage.getItem('token');
+    } catch {
+      return localStorage.getItem('token');
+    }
+  };
+
   const fetchTenants = async () => {
     try {
       const res = await axios.get('/api/v1/super-admin/tenants', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${getAuthToken()}` }
       });
       setTenants(res.data.data);
     } catch (err) {
@@ -41,7 +50,7 @@ const TenantMgmt = () => {
     setActionLoading(tenantId);
     try {
       const res = await axios.patch(`/api/v1/super-admin/tenants/${tenantId}/status`, {}, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${getAuthToken()}` }
       });
       setTenants(prev => prev.map(t => t.tenantId === tenantId ? res.data.data : t));
     } catch (err) {
@@ -57,7 +66,7 @@ const TenantMgmt = () => {
     setActionLoading('CREATE');
     try {
       const res = await axios.post('/api/v1/super-admin/tenants', newTenant, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${getAuthToken()}` }
       });
       setTenants([res.data.data.tenant, ...tenants]);
       setIsModalOpen(false);

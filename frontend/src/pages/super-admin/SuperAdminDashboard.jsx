@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 
 // ── Super Admin API (no tenant header) ───────────────────────────────────────
-const saApi = axios.create({ baseURL: '/api/v1' });
+const saApi = axios.create({ baseURL: import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api/v1` : '/api/v1' });
 saApi.interceptors.request.use(config => {
   const saved = localStorage.getItem('sa_auth');
   if (saved) { try { config.headers['Authorization'] = `Bearer ${JSON.parse(saved).token}`; } catch (_) {} }
