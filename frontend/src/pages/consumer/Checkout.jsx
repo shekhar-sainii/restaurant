@@ -175,23 +175,62 @@ const Checkout = () => {
   return (
     <div className="py-10 px-6 max-w-5xl mx-auto text-white relative z-10">
       
-      {/* Exquisite Premium Alert Banner */}
+      {/* Exquisite Premium Interactive Alert Modal */}
       <AnimatePresence>
         {errorMessage && (
           <motion.div
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            className="fixed top-24 left-1/2 -translate-x-1/2 z-[150] max-w-md w-[calc(100%-2rem)] glass border border-rose-500/40 p-4 rounded-2xl shadow-[0_20px_50px_rgba(244,63,94,0.3)] flex items-center gap-3.5 backdrop-blur-2xl"
-            style={{ backgroundColor: 'rgba(15,15,15,0.95)' }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
           >
-            <div className="p-2.5 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20 flex-shrink-0">
-              <AlertCircle size={20} />
-            </div>
-            <div className="flex-1 text-left">
-              <p className="text-[9px] font-black uppercase tracking-widest text-rose-400 mb-0.5">Instruction Required</p>
-              <p className="text-xs text-white font-medium">{errorMessage}</p>
-            </div>
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="max-w-sm w-full glass border border-white/10 rounded-3xl p-6 text-center shadow-[0_20px_60px_rgba(0,0,0,0.8)] relative overflow-hidden"
+              style={{ backgroundColor: '#141414' }}
+            >
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-rose-500 to-amber-500" />
+              
+              <div className="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-500 flex items-center justify-center mx-auto mb-4 shadow-inner">
+                <AlertCircle size={32} />
+              </div>
+
+              <span className="text-[10px] font-black uppercase tracking-widest text-rose-400 block mb-1">
+                Action Required
+              </span>
+              
+              <h3 className="text-xl font-playfair font-bold text-white mb-2">
+                {errorMessage.includes('seat') || errorMessage.includes('table') ? 'Select Your Table' : 'Instruction Notice'}
+              </h3>
+
+              <p className="text-text-muted text-xs leading-relaxed mb-6 px-2">
+                {errorMessage}
+              </p>
+
+              {errorMessage.includes('seat') || errorMessage.includes('table') ? (
+                <button
+                  onClick={() => {
+                    setErrorMessage(null);
+                    setTimeout(() => {
+                      document.getElementById('table-selection-grid')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 100);
+                  }}
+                  className="w-full py-3.5 rounded-xl font-black uppercase tracking-widest text-[11px] text-black transition-all hover:scale-[1.02] active:scale-95 shadow-xl flex items-center justify-center gap-2 outline-none"
+                  style={{ backgroundColor: primary }}
+                >
+                  👉 Choose Table Now
+                </button>
+              ) : (
+                <button
+                  onClick={() => setErrorMessage(null)}
+                  className="w-full py-3.5 rounded-xl font-bold text-xs bg-white/10 hover:bg-white/20 transition-all text-white outline-none"
+                >
+                  Understood
+                </button>
+              )}
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -235,7 +274,7 @@ const Checkout = () => {
                   Table Selection
                 </h2>
                 {loadingTables ? <Loader2 size={18} className="animate-spin" style={{ color: primary }} /> : (
-                  <div className="grid grid-cols-5 sm:grid-cols-8 gap-2">
+                  <div id="table-selection-grid" className="grid grid-cols-5 sm:grid-cols-8 gap-2 scroll-mt-24">
                     {tables.map(t => (
                       <button key={t._id} disabled={t.status === 'OCCUPIED'} onClick={() => setTableNumber(t.tableNumber)}
                         className={`aspect-square rounded-xl border flex flex-col items-center justify-center transition-all ${tableNumber === t.tableNumber ? 'text-black border-transparent shadow-lg scale-105' : t.status === 'OCCUPIED' ? 'opacity-20 bg-white/5' : 'bg-white/[0.03] border-white/5 text-gray-400 hover:border-primary/40'}`}
