@@ -26,7 +26,6 @@ services:
       - ./backend/.env
     environment:
       - PORT=5000
-      - MONGO_URI=mongodb://mongodb:27017/restaurant
       - CLIENT_URL=http://localhost:8080
       # Ensure email environment vars map correctly to backend configurations
       - MAIL_USER=shekharsaini2030@gmail.com

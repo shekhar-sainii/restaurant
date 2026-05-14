@@ -123,9 +123,20 @@ const Orders = () => {
         const rawGuests = localStorage.getItem('guest_orders');
         if (rawGuests) {
           const guestLogs = JSON.parse(rawGuests);
-          const validIds = guestLogs.map(log => log.id);
-          const response = await publicService.getGuestOrders(validIds); 
-          setOrders(response.data || []);
+          const TWELVE_HOURS = 12 * 60 * 60 * 1000;
+          const validLogs = guestLogs.filter(log => (Date.now() - (log.timestamp || 0)) < TWELVE_HOURS);
+          
+          if (validLogs.length > 0) {
+            if (validLogs.length !== guestLogs.length) {
+              localStorage.setItem('guest_orders', JSON.stringify(validLogs));
+            }
+            const validIds = validLogs.map(log => log.id);
+            const response = await publicService.fetchGuestOrders(validIds); 
+            setOrders(response.data || []);
+          } else {
+            localStorage.removeItem('guest_orders');
+            setOrders([]);
+          }
         }
       }
     } catch (error) {

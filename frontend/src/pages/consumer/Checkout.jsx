@@ -18,7 +18,8 @@ import {
   ArrowRight,
   Utensils,
   Navigation,
-  Smartphone
+  Smartphone,
+  AlertCircle
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import socket from '../../services/socket';
@@ -51,6 +52,12 @@ const Checkout = () => {
   const [selectedUpiType, setSelectedUpiType] = useState('primary'); 
   const [loadingTables, setLoadingTables] = useState(true);
   const [isDetecting, setIsDetecting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
+
+  const showError = (msg) => {
+    setErrorMessage(msg);
+    setTimeout(() => setErrorMessage(null), 4000);
+  };
 
   useEffect(() => {
     if (orderType === 'DINING' && slug) {
@@ -71,7 +78,7 @@ const Checkout = () => {
   }, [orderType, slug]);
 
   const handleDetectLocation = () => {
-    if (!navigator.geolocation) { alert("Geolocation is not supported"); return; }
+    if (!navigator.geolocation) { showError("Geolocation is not supported by your operating system."); return; }
     setIsDetecting(true);
     navigator.geolocation.getCurrentPosition(
       async (position) => {
@@ -92,7 +99,7 @@ const Checkout = () => {
         } catch (err) { setAddress(prev => ({ ...prev, lat: latitude, lng: longitude })); }
         finally { setIsDetecting(false); }
       },
-      () => { setIsDetecting(false); alert("Location permission denied"); },
+      () => { setIsDetecting(false); showError("Location retrieval denied. Please specify building address manually."); },
       { enableHighAccuracy: true, timeout: 10000 }
     );
   };
@@ -101,8 +108,14 @@ const Checkout = () => {
   const [verifying, setVerifying] = useState(false);
 
   const handlePlaceOrder = async () => {
-    if (orderType === 'DINING' && !tableNumber) { alert('Please select your table'); return; }
-    if (orderType === 'DELIVERY' && (!address.line1 || !address.phone)) { alert('Please fill in delivery details'); return; }
+    if (orderType === 'DINING' && !tableNumber) { 
+      showError('Please select your target seat/table prior to final dispatch.'); 
+      return; 
+    }
+    if (orderType === 'DELIVERY' && (!address.line1 || !address.phone)) { 
+      showError('Please fill in complete delivery destination instructions.'); 
+      return; 
+    }
 
     setOrderStatus('loading');
     try {
@@ -120,6 +133,19 @@ const Checkout = () => {
 
       if (newOrderInfo && newOrderInfo._id) {
         dispatch(clearCart(tenantId));
+
+        // Save to guest tracking history if unauthenticated
+        if (!isAuthenticated) {
+          try {
+            const rawGuests = localStorage.getItem('guest_orders');
+            const guestLogs = rawGuests ? JSON.parse(rawGuests) : [];
+            guestLogs.push({ id: newOrderInfo._id, timestamp: Date.now() });
+            localStorage.setItem('guest_orders', JSON.stringify(guestLogs));
+          } catch (e) {
+            console.error("Failed to save guest order to localStorage", e);
+          }
+        }
+
         if (paymentMode === 'upi') {
           setPlacedOrder(newOrderInfo);
           setOrderStatus('idle');
@@ -131,7 +157,7 @@ const Checkout = () => {
       }
     } catch (err) {
       console.error("Placement error:", err);
-      alert(err.response?.data?.message || err.message || 'Failed to place order');
+      showError(err.response?.data?.message || err.message || 'Failed to dispatch order securely.');
       setOrderStatus('idle');
     }
   };
@@ -148,6 +174,28 @@ const Checkout = () => {
 
   return (
     <div className="py-10 px-6 max-w-5xl mx-auto text-white relative z-10">
+      
+      {/* Exquisite Premium Alert Banner */}
+      <AnimatePresence>
+        {errorMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            className="fixed top-24 left-1/2 -translate-x-1/2 z-[150] max-w-md w-[calc(100%-2rem)] glass border border-rose-500/40 p-4 rounded-2xl shadow-[0_20px_50px_rgba(244,63,94,0.3)] flex items-center gap-3.5 backdrop-blur-2xl"
+            style={{ backgroundColor: 'rgba(15,15,15,0.95)' }}
+          >
+            <div className="p-2.5 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20 flex-shrink-0">
+              <AlertCircle size={20} />
+            </div>
+            <div className="flex-1 text-left">
+              <p className="text-[9px] font-black uppercase tracking-widest text-rose-400 mb-0.5">Instruction Required</p>
+              <p className="text-xs text-white font-medium">{errorMessage}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6">
         <div>
            <span className="text-[10px] font-black uppercase tracking-[0.2em] mb-2 block" style={{ color: primary }}>Checkout</span>
