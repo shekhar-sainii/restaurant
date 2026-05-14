@@ -78,6 +78,11 @@ const EditModal = ({ isOpen, tenant, onClose, onSaved }) => {
   const [tab, setTab]   = useState('basic');
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
+  
+  // Password Reset sub-states
+  const [newPwd, setNewPwd] = useState('');
+  const [pwdLoading, setPwdLoading] = useState(false);
+  const [pwdMsg, setPwdMsg] = useState('');
 
   useEffect(() => {
     if (tenant) {
@@ -99,7 +104,7 @@ const EditModal = ({ isOpen, tenant, onClose, onSaved }) => {
         'enabledModules.guestOrdering':tenant.enabledModules?.guestOrdering ?? true,
         'enabledModules.chat':         tenant.enabledModules?.chat         ?? true,
       });
-      setTab('basic'); setError('');
+      setTab('basic'); setError(''); setPwdMsg(''); setNewPwd('');
     }
   }, [tenant]);
 
@@ -121,8 +126,25 @@ const EditModal = ({ isOpen, tenant, onClose, onSaved }) => {
     finally { setLoading(false); }
   };
 
+  const handleResetPassword = async () => {
+    if (!newPwd || newPwd.length < 6) {
+      setPwdMsg('Password must be at least 6 characters');
+      return;
+    }
+    setPwdLoading(true); setPwdMsg('');
+    try {
+      await saApi.patch(`/super-admin/tenants/${tenant.tenantId}/password`, { newPassword: newPwd });
+      setPwdMsg('Password reset successfully!');
+      setNewPwd('');
+    } catch (err) {
+      setPwdMsg(err.response?.data?.message || 'Failed to reset password');
+    } finally {
+      setPwdLoading(false);
+    }
+  };
+
   if (!isOpen || !tenant) return null;
-  const TABS = [{ id:'basic',label:'Basic',icon:Building2 },{ id:'theme',label:'Theme',icon:Globe },{ id:'payment',label:'Payment',icon:CreditCard },{ id:'modules',label:'Modules',icon:Layers }];
+  const TABS = [{ id:'basic',label:'Basic',icon:Building2 },{ id:'theme',label:'Theme',icon:Globe },{ id:'payment',label:'Payment',icon:CreditCard },{ id:'modules',label:'Modules',icon:Layers },{ id:'security',label:'Security',icon:ShieldCheck }];
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
@@ -192,6 +214,32 @@ const EditModal = ({ isOpen, tenant, onClose, onSaved }) => {
                   </button>
                 </div>
               ))}
+            </div>
+          )}
+          {tab === 'security' && (
+            <div className="space-y-4">
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+                <p className="text-xs text-purple-400 font-bold mb-1 flex items-center gap-1.5">
+                  <ShieldCheck size={14}/> Reset Admin Password
+                </p>
+                <p className="text-[11px] text-gray-500 mb-4">
+                  Forcefully update the account password for <span className="text-gray-300 font-bold">{tenant.ownerAdminId?.email || 'this tenant admin'}</span>.
+                </p>
+                {pwdMsg && (
+                  <div className={`p-3 rounded-xl text-xs mb-3 font-bold ${pwdMsg.includes('success') ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+                    {pwdMsg}
+                  </div>
+                )}
+                <div className="space-y-3">
+                  <div>
+                    <label className={LABEL}>New Password</label>
+                    <input type="text" placeholder="Minimum 6 characters" value={newPwd} onChange={e=>setNewPwd(e.target.value)} className={INPUT} />
+                  </div>
+                  <button type="button" onClick={handleResetPassword} disabled={pwdLoading} className={`w-full py-3 rounded-xl flex items-center justify-center gap-2 ${BTN_P}`}>
+                    {pwdLoading ? 'Processing...' : 'Force Reset Password'}
+                  </button>
+                </div>
+              </div>
             </div>
           )}
         </div>

@@ -41,6 +41,28 @@ const BrandingSettings = () => {
   const [logoFile, setLogoFile] = useState(null);
   const [bannerFile, setBannerFile] = useState(null);
 
+  // Password update sub-states
+  const [pwdForm, setPwdForm] = useState({ currentPassword: '', newPassword: '' });
+  const [pwdUpdating, setPwdUpdating] = useState(false);
+  const [pwdMsg, setPwdMsg] = useState('');
+
+  const handleUpdatePassword = async () => {
+    if (!pwdForm.newPassword || pwdForm.newPassword.length < 6) {
+      setPwdMsg('New password must be at least 6 characters');
+      return;
+    }
+    setPwdUpdating(true); setPwdMsg('');
+    try {
+      await saApi.patch('/user/password', pwdForm);
+      setPwdMsg('Password updated successfully!');
+      setPwdForm({ currentPassword: '', newPassword: '' });
+    } catch (e) {
+      setPwdMsg(e.response?.data?.message || 'Failed to update password');
+    } finally {
+      setPwdUpdating(false);
+    }
+  };
+
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }));
 
   useEffect(() => {
@@ -264,6 +286,35 @@ const BrandingSettings = () => {
               <span>Lng: {form.location?.lng?.toFixed(6)}</span>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Account Security Section */}
+      <div className="pt-6 border-t border-white/5 space-y-4">
+        <div>
+          <h3 className="text-sm font-bold text-white mb-1">Account Security</h3>
+          <p className="text-[11px] text-text-muted">Update your authenticated administrator account access password</p>
+        </div>
+        
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
+          {pwdMsg && (
+            <div className={`p-3 rounded-xl text-xs font-bold ${pwdMsg.includes('success') ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+              {pwdMsg}
+            </div>
+          )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className={LABEL}>Current Password (Optional if reset)</label>
+              <input type="password" placeholder="••••••••" value={pwdForm.currentPassword} onChange={e => setPwdForm(p => ({ ...p, currentPassword: e.target.value }))} className={INPUT} />
+            </div>
+            <div>
+              <label className={LABEL}>New Password</label>
+              <input type="password" placeholder="Minimum 6 characters" value={pwdForm.newPassword} onChange={e => setPwdForm(p => ({ ...p, newPassword: e.target.value }))} className={INPUT} />
+            </div>
+          </div>
+          <button type="button" onClick={handleUpdatePassword} disabled={pwdUpdating} className="px-6 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-widest transition-all">
+            {pwdUpdating ? 'Updating...' : 'Update Password'}
+          </button>
         </div>
       </div>
 

@@ -25,9 +25,34 @@ const Profile = () => {
   const { user } = useSelector(selectAuth);
   const [updating, setUpdating] = useState(false);
 
+  // Consumer Password Management Sub-states
+  const [showPwdModal, setShowPwdModal] = useState(false);
+  const [pwdForm, setPwdForm] = useState({ currentPassword: '', newPassword: '' });
+  const [pwdUpdating, setPwdUpdating] = useState(false);
+  const [pwdMsg, setPwdMsg] = useState('');
+
   const handleLogout = () => {
     dispatch(logout());
     navigate('/');
+  };
+
+  const handleUpdatePassword = async (e) => {
+    e.preventDefault();
+    if (!pwdForm.newPassword || pwdForm.newPassword.length < 6) {
+      setPwdMsg('New password must be at least 6 characters');
+      return;
+    }
+    setPwdUpdating(true); setPwdMsg('');
+    try {
+      await userService.updatePassword(pwdForm);
+      setPwdMsg('Password updated successfully!');
+      setPwdForm({ currentPassword: '', newPassword: '' });
+      setTimeout(() => setShowPwdModal(false), 2000);
+    } catch (err) {
+      setPwdMsg(err.response?.data?.message || 'Failed to update password');
+    } finally {
+      setPwdUpdating(false);
+    }
   };
 
   const handleImageChange = async (e) => {
@@ -40,10 +65,9 @@ const Profile = () => {
     setUpdating(true);
     try {
       const response = await userService.updateProfile(formData);
-      // Update local storage/redux state with new user info
       dispatch(setCredentials({ 
         user: response.data, 
-        token: localStorage.getItem('token') // Preserve existing token
+        token: localStorage.getItem('token') 
       }));
     } catch (error) {
       console.error('Failed to update profile picture', error);
@@ -61,6 +85,15 @@ const Profile = () => {
     { icon: <CreditCard size={20} />, label: 'Payments', desc: 'Saved cards and UPI IDs', path: '/payments' },
     { icon: <Settings size={20} />, label: 'Settings', desc: 'Security and preferences', path: '/settings' },
   ];
+
+  const handleMenuClick = (path) => {
+    if (path === '/settings') {
+      setShowPwdModal(true);
+      setPwdMsg(''); setPwdForm({ currentPassword: '', newPassword: '' });
+    } else {
+      navigate(path);
+    }
+  };
 
   return (
     <div className="min-h-screen py-20 px-6 max-w-5xl mx-auto">
@@ -144,6 +177,7 @@ const Profile = () => {
         {menuItems.map((item, idx) => (
           <motion.button
             key={item.label}
+            onClick={() => handleMenuClick(item.path)}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: idx * 0.1 }}
@@ -183,6 +217,45 @@ const Profile = () => {
             <p className="text-xs mt-2">Hungry? Explore our gourmet selection.</p>
         </div>
       </section>
+
+      {/* Update Password Modal Overlay */}
+      {showPwdModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setShowPwdModal(false)} />
+          <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative w-full max-w-md bg-bg-dark border border-white/10 rounded-[2.5rem] p-8 shadow-2xl space-y-6">
+            <header>
+              <h3 className="text-2xl font-playfair font-bold text-white mb-1">Account Security</h3>
+              <p className="text-xs text-text-muted">Set a new personal password for your account</p>
+            </header>
+
+            {pwdMsg && (
+              <div className={`p-3 rounded-xl text-xs font-bold ${pwdMsg.includes('success') ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+                {pwdMsg}
+              </div>
+            )}
+
+            <form onSubmit={handleUpdatePassword} className="space-y-4">
+              <div>
+                <label className="text-[10px] font-black text-text-muted uppercase tracking-widest block mb-1.5">Current Password</label>
+                <input type="password" placeholder="••••••••" value={pwdForm.currentPassword} onChange={e => setPwdForm(p => ({ ...p, currentPassword: e.target.value }))} className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm text-white outline-none focus:border-primary/40 transition-all" />
+              </div>
+              <div>
+                <label className="text-[10px] font-black text-text-muted uppercase tracking-widest block mb-1.5">New Password</label>
+                <input type="password" placeholder="Minimum 6 characters" value={pwdForm.newPassword} onChange={e => setPwdForm(p => ({ ...p, newPassword: e.target.value }))} className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm text-white outline-none focus:border-primary/40 transition-all" />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button type="button" onClick={() => setShowPwdModal(false)} className="flex-1 py-3 rounded-xl border border-white/10 text-text-muted hover:text-white text-xs font-bold transition-all">
+                  Cancel
+                </button>
+                <button type="submit" disabled={pwdUpdating} className="flex-1 py-3 rounded-xl bg-primary text-black font-black uppercase tracking-widest text-xs transition-all disabled:opacity-50">
+                  {pwdUpdating ? 'Saving...' : 'Confirm'}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };

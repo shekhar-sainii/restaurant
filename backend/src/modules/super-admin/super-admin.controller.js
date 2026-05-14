@@ -50,6 +50,25 @@ class SuperAdminController {
     return res.status(httpStatus.OK).json(new ApiResponse(httpStatus.OK, null, "Tenant deleted"));
   });
 
+  updateTenantPassword = asyncHandler(async (req, res) => {
+    const { newPassword } = req.body;
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(httpStatus.BAD_REQUEST).json(new ApiResponse(httpStatus.BAD_REQUEST, null, "Password must be at least 6 characters long"));
+    }
+    const tenant = await Tenant.findOne({ tenantId: req.params.tenantId });
+    if (!tenant || !tenant.ownerAdminId) {
+      return res.status(httpStatus.NOT_FOUND).json(new ApiResponse(httpStatus.NOT_FOUND, null, "Tenant or owner account not found"));
+    }
+    const { User } = require("../../models");
+    const user = await User.findById(tenant.ownerAdminId);
+    if (!user) {
+      return res.status(httpStatus.NOT_FOUND).json(new ApiResponse(httpStatus.NOT_FOUND, null, "Owner account document missing"));
+    }
+    user.password = newPassword;
+    await user.save(); // triggers pre-save password bcrypt hashing automatically!
+    return res.status(httpStatus.OK).json(new ApiResponse(httpStatus.OK, null, `Password updated successfully for ${tenant.businessName} admin`));
+  });
+
   // ── Platform Analytics ────────────────────────────────────────────────────
 
   getPlatformStats = asyncHandler(async (req, res) => {
@@ -122,5 +141,6 @@ router.get("/stats",                      controller.getPlatformStats);
 router.get("/orders",                     controller.getAllOrders);
 router.get("/platform",                   controller.getPlatformSettings);
 router.put("/platform",                   controller.updatePlatformSettings);
+router.patch("/tenants/:tenantId/password", controller.updateTenantPassword);
 
 module.exports = { controller, router };

@@ -19,5 +19,13 @@ export const userService = {
       },
     });
     return response.data;
+  },
+
+  /**
+   * Update authenticated user password
+   */
+  async updatePassword(payload) {
+    const response = await api.patch('/user/password', payload);
+    return response.data;
   }
 };

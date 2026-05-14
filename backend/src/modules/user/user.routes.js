@@ -8,5 +8,6 @@ router.use(verifyAccessToken);
 
 router.get("/profile", userController.getProfile);
 router.put("/profile", upload.single('image'), userController.updateProfile);
+router.patch("/password", userController.updatePassword);
 
 module.exports = router;

@@ -20,6 +20,27 @@ class UserController {
     const user = await userService.updateProfile(req.user._id, updateData);
     return res.status(httpStatus.OK).json(new ApiResponse(httpStatus.OK, user, "Profile updated"));
   });
+
+  updatePassword = asyncHandler(async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(httpStatus.BAD_REQUEST).json(new ApiResponse(httpStatus.BAD_REQUEST, null, "New password must be at least 6 characters long"));
+    }
+    const { User } = require("../../models");
+    const user = await User.findById(req.user._id).select("+password");
+    if (!user) {
+      return res.status(httpStatus.NOT_FOUND).json(new ApiResponse(httpStatus.NOT_FOUND, null, "User account not found"));
+    }
+    if (currentPassword) {
+      const isCorrect = await user.isPasswordCorrect(currentPassword);
+      if (!isCorrect) {
+        return res.status(httpStatus.BAD_REQUEST).json(new ApiResponse(httpStatus.BAD_REQUEST, null, "Current password is incorrect"));
+      }
+    }
+    user.password = newPassword;
+    await user.save();
+    return res.status(httpStatus.OK).json(new ApiResponse(httpStatus.OK, null, "Password updated successfully"));
+  });
 }
 
 module.exports = new UserController();
