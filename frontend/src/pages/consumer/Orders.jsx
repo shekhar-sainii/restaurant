@@ -175,7 +175,7 @@ const Orders = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-20 min-h-screen text-white">
+    <div className="max-w-4xl mx-auto px-6 pt-20 pb-36 md:pb-20 min-h-screen text-white">
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
         <div>
           <span className="text-[10px] font-black uppercase tracking-[0.3em] mb-4 block" style={{ color: primary }}>DineSync Timeline</span>
