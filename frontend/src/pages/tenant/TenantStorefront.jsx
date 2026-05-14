@@ -495,7 +495,7 @@ const TenantStorefront = () => {
       </section>
 
       {/* ── Active Order & Cart Drawer Overlay Tray ── */}
-      <div className="fixed bottom-8 right-8 z-50 flex flex-col sm:flex-row items-end gap-3 pointer-events-none">
+      <div className="fixed bottom-24 md:bottom-8 right-4 md:right-8 z-[110] flex flex-col sm:flex-row items-end gap-2 pointer-events-none max-w-[calc(100vw-2rem)]">
         
         {/* Active Order Tracking Floating Button */}
         <AnimatePresence>
@@ -503,17 +503,17 @@ const TenantStorefront = () => {
             <motion.button
               initial={{ scale: 0, y: 40 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0, y: 40 }}
               onClick={() => navigate(`/${slug}/orders`)}
-              className="pointer-events-auto text-white font-sans px-6 py-4 shadow-2xl flex items-center gap-3 hover:scale-105 active:scale-95 transition-all group backdrop-blur-2xl border border-white/20"
+              className="pointer-events-auto text-white font-sans px-4 sm:px-6 py-3 sm:py-4 shadow-2xl flex items-center gap-2.5 hover:scale-105 active:scale-95 transition-all group backdrop-blur-2xl border border-white/20"
               style={{ backgroundColor: 'rgba(20,20,20,0.95)', borderRadius: '2.5rem' }}
             >
-              <div className="relative p-2 rounded-full border border-white/10" style={{ backgroundColor: `${primary}20`, color: primary }}>
-                 <Package size={18} />
+              <div className="relative p-1.5 sm:p-2 rounded-full border border-white/10 shrink-0" style={{ backgroundColor: `${primary}20`, color: primary }}>
+                 <Package className="w-4 h-4 sm:w-4 sm:h-4" />
                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full animate-ping" style={{ backgroundColor: primary }} />
               </div>
               
               <div className="text-left pr-1">
-                 <p className="text-[8px] font-black uppercase tracking-widest text-text-muted mb-0.5">Timeline</p>
-                 <p className="text-xs font-black tracking-tight text-white">Track Order</p>
+                 <p className="text-[7px] sm:text-[8px] font-black uppercase tracking-widest text-text-muted mb-0.5 leading-none">Timeline</p>
+                 <p className="text-[11px] sm:text-xs font-black tracking-tight text-white leading-none mt-0.5">Track Order</p>
               </div>
             </motion.button>
           )}
@@ -525,20 +525,20 @@ const TenantStorefront = () => {
             <motion.button
               initial={{ scale: 0, y: 40 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0, y: 40 }}
               onClick={() => navigate(`/${slug}/cart`)}
-              className="pointer-events-auto text-black font-sans px-8 py-4 shadow-2xl flex items-center gap-4 hover:scale-105 active:scale-95 transition-all group border border-black/10"
+              className="pointer-events-auto text-black font-sans px-5 sm:px-8 py-3 sm:py-4 shadow-2xl flex items-center gap-2 sm:gap-4 hover:scale-105 active:scale-95 transition-all group border border-black/10"
               style={{ backgroundColor: primary, borderRadius: '2.5rem' }}
             >
-              <div className="relative p-2 rounded-full bg-black/10">
-                 <ShoppingCart size={20} className="text-black" />
-                 <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-black rounded-full animate-ping" />
+              <div className="relative p-1.5 sm:p-2 rounded-full bg-black/10 shrink-0">
+                 <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-black" />
+                 <span className="absolute -top-1 -right-1 w-2 h-2 sm:w-2.5 sm:h-2.5 bg-black rounded-full animate-ping" />
               </div>
               
               <div className="text-left">
-                 <p className="text-[9px] font-black uppercase tracking-widest text-black/60 mb-0.5">Order Assembly</p>
-                 <p className="text-xs font-black tracking-tight">{cartCount} Active Selection{cartCount > 1 ? 's' : ''}</p>
+                 <p className="text-[7px] sm:text-[9px] font-black uppercase tracking-widest text-black/60 mb-0.5 leading-none">Order Assembly</p>
+                 <p className="text-[11px] sm:text-xs font-black tracking-tight leading-none mt-0.5">{cartCount} Item{cartCount > 1 ? 's' : ''}</p>
               </div>
               
-              <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              <ChevronRight className="w-4 h-4 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform shrink-0" />
             </motion.button>
           )}
         </AnimatePresence>
