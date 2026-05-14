@@ -57,14 +57,23 @@ function App() {
           ))}
         </Route>
 
-        {/* PROTECTED ROUTES */}
-        {protectedRoutes.map((route) => (
-          <Route key={route.path} element={<ProtectedRoute allowedRoles={route.roles} />}>
-            <Route element={route.layout === 'admin' ? <AdminLayout /> : <MainLayout />}>
+        {/* PROTECTED ADMIN ROUTES (Grouped persistently under single layout instance to prevent layout unmount/reloads) */}
+        <Route element={<AdminLayout />}>
+          {protectedRoutes.filter(r => r.layout === 'admin').map((route) => (
+            <Route key={route.path} element={<ProtectedRoute allowedRoles={route.roles} />}>
               <Route path={route.path} element={<route.component />} />
             </Route>
-          </Route>
-        ))}
+          ))}
+        </Route>
+
+        {/* PROTECTED MAIN LAYOUT ROUTES */}
+        <Route element={<MainLayout />}>
+          {protectedRoutes.filter(r => r.layout !== 'admin').map((route) => (
+            <Route key={route.path} element={<ProtectedRoute allowedRoles={route.roles} />}>
+              <Route path={route.path} element={<route.component />} />
+            </Route>
+          ))}
+        </Route>
 
         {/* Admin redirect */}
         <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />

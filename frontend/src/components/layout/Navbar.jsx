@@ -71,7 +71,7 @@ const Navbar = ({ onMenuClick }) => {
       <div className="flex items-center gap-4">
         <button
           onClick={onMenuClick || (() => setIsMobileMenuOpen(true))}
-          className="lg:hidden p-2 text-text-muted hover:text-primary transition-colors"
+          className={`p-2 text-text-muted hover:text-primary transition-colors cursor-pointer ${!onMenuClick ? 'lg:hidden' : ''}`}
         >
           <Menu size={24} />
         </button>
