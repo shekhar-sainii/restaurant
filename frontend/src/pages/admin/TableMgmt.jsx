@@ -11,7 +11,8 @@ import {
   FiPlus, 
   FiSearch,
   FiTrello,
-  FiUnlock
+  FiUnlock,
+  FiPrinter
 } from 'react-icons/fi';
 
 const TableMgmt = () => {
@@ -40,6 +41,49 @@ const TableMgmt = () => {
   useEffect(() => {
     loadTables();
   }, []);
+
+  const handlePrintQR = (table) => {
+    const slug = localStorage.getItem('tenant_slug') || 'rest01';
+    const origin = window.location.origin.includes('localhost') ? 'https://restaurant-kohl-phi.vercel.app' : window.location.origin;
+    const targetUrl = `${origin}/${slug}?table=${table.tableNumber}`;
+    const qrImg = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(targetUrl)}`;
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert('Please allow popups to print table QR codes.');
+      return;
+    }
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Table ${table.tableNumber} QR Code - ${slug.toUpperCase()}</title>
+          <style>
+            body { font-family: 'Inter', sans-serif; text-align: center; padding: 40px; background: #fff; color: #000; }
+            .card { border: 4px solid #000; border-radius: 24px; padding: 40px; max-width: 320px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+            .title { font-size: 28px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+            .sub { font-size: 14px; color: #555; margin-bottom: 24px; font-weight: bold; }
+            .qr-container { background: #fff; padding: 16px; border-radius: 16px; border: 2px solid #eee; display: inline-block; }
+            .qr { width: 220px; height: 220px; }
+            .footer { margin-top: 24px; font-size: 18px; font-weight: 900; background: #000; color: #fff; padding: 8px 16px; border-radius: 12px; display: inline-block; }
+            .scan-text { font-size: 11px; font-weight: bold; letter-spacing: 1px; margin-top: 12px; color: #888; text-transform: uppercase; }
+          </style>
+        </head>
+        <body>
+          <div class="card">
+            <div class="title">${slug}</div>
+            <div class="sub">Scan to Order Instantly</div>
+            <div class="qr-container">
+              <img class="qr" src="${qrImg}" onload="setTimeout(() => window.print(), 500)" />
+            </div>
+            <div class="footer">TABLE ${table.tableNumber}</div>
+            <div class="scan-text">Place phone camera over QR</div>
+          </div>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
 
   const handleOpenRelease = (table) => {
     setSelectedTable(table);
@@ -179,11 +223,18 @@ const TableMgmt = () => {
         loading={loading}
         actions={(row) => (
           <>
+            <button 
+              onClick={() => handlePrintQR(row)}
+              title="Print Table QR Code"
+              className="p-2.5 rounded-xl bg-primary/10 border border-primary/20 hover:bg-primary hover:text-black transition-all text-primary"
+            >
+              <FiPrinter size={16} />
+            </button>
             {row.status === 'OCCUPIED' && (
               <button 
                 onClick={() => handleOpenRelease(row)}
                 title="Release Table"
-                className="p-2.5 rounded-xl bg-primary/10 border border-primary/20 hover:bg-primary hover:text-black transition-all text-primary"
+                className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500 hover:text-black transition-all text-amber-500"
               >
                 <FiUnlock size={16} />
               </button>

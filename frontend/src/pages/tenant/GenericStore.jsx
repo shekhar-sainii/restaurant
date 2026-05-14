@@ -29,6 +29,14 @@ const GenericStore = () => {
   const primary = tenant?.theme?.primaryColor || '#c9a227';
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tNum = params.get('table');
+    if (tNum) {
+      localStorage.setItem('selected_table', tNum);
+    }
+  }, []);
+
+  useEffect(() => {
     const headers = { 'X-Tenant-Slug': slug };
     Promise.all([
       axios.get('/api/v1/public/products',   { headers }),

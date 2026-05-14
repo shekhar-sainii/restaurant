@@ -213,6 +213,14 @@ const TenantStorefront = () => {
   const navigate   = useNavigate();
   const cartCount  = useSelector(state => selectCartCount(state, tenant?.tenantId));
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tNum = params.get('table');
+    if (tNum) {
+      localStorage.setItem('selected_table', tNum);
+    }
+  }, []);
+
   const [products, setProducts]         = useState([]);
   const [categories, setCategories]     = useState([]);
   const [activeCategory, setActiveCategory] = useState('all');

@@ -26,6 +26,14 @@ const HoneyHubStore = () => {
     }).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tNum = params.get('table');
+    if (tNum) {
+      localStorage.setItem('selected_table', tNum);
+    }
+  }, []);
+
   const filtered = activeCategory === 'all'
     ? products
     : products.filter(p => p.categoryId?._id === activeCategory || p.categoryId === activeCategory);
