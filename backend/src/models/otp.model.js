@@ -1,0 +1,14 @@
+const mongoose = require("mongoose");
+
+const otpSchema = new mongoose.Schema(
+  {
+    tenantId: { type: String, default: null, index: true },
+    mobile: { type: String, required: true },
+    otp:    { type: String, required: true },
+    attempts: { type: Number, default: 0 },
+    createdAt: { type: Date, default: Date.now, expires: 600 },
+  },
+  { timestamps: true }
+);
+
+module.exports = mongoose.model("OTP", otpSchema);

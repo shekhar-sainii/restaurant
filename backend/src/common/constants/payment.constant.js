@@ -1,0 +1,16 @@
+const PAYMENT_METHOD = {
+  CASH: "CASH",
+  COD: "COD",
+  UPI: "UPI",
+  ONLINE: "ONLINE",
+  PAY_LATER: "PAY_LATER",
+};
+
+const PAYMENT_STATUS = {
+  PENDING: "PENDING",
+  PAID: "PAID",
+  FAILED: "FAILED",
+  REFUNDED: "REFUNDED",
+};
+
+module.exports = { PAYMENT_METHOD, PAYMENT_STATUS };

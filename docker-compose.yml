@@ -1,0 +1,54 @@
+# Modern Docker Compose configuration
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: restaurant_mongodb
+    ports:
+      # Mapped host port changed to 27018 to avoid collision with local MongoDB daemon
+      - "27018:27017"
+    volumes:
+      - mongodb_data:/data/db
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: restaurant_backend
+    ports:
+      # Mapped host port changed to 5001 to avoid collision with running local backend dev server
+      - "5001:5000"
+    restart: unless-stopped
+    depends_on:
+      - mongodb
+    env_file:
+      - ./backend/.env
+    environment:
+      - PORT=5000
+      - MONGO_URI=mongodb://mongodb:27017/restaurant
+      - CLIENT_URL=http://localhost:8080
+      # Ensure email environment vars map correctly to backend configurations
+      - MAIL_USER=shekharsaini2030@gmail.com
+      - MAIL_PASS=wonn kwiy ueca mvvf
+    volumes:
+      - backend_uploads:/usr/src/app/uploads
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: restaurant_frontend
+    ports:
+      - "80:80"
+      # Mapped host port changed to 8080 to avoid collision with running local frontend dev server on port 3000
+      - "8080:80"
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+volumes:
+  mongodb_data:
+    name: restaurant_mongodb_data
+  backend_uploads:
+    name: restaurant_backend_uploads
