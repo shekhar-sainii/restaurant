@@ -10,7 +10,9 @@ import {
   FiTrash2, 
   FiPlus, 
   FiSearch,
-  FiFilter
+  FiFilter,
+  FiAlertTriangle,
+  FiTrendingDown
 } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 
@@ -157,6 +159,58 @@ const ProductMgmt = () => {
 
   return (
     <div className="space-y-8 pb-10">
+      
+      {/* Automated Inventory Forecasting & Raw Material Mapping Matrix Banner */}
+      <div className="glass p-6 rounded-3xl border border-amber-500/20 bg-amber-500/[0.02] space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4">
+          <div>
+            <h3 className="font-playfair text-base font-bold text-white flex items-center gap-2">
+              <FiAlertTriangle className="text-amber-500" /> Automated Inventory Forecasting
+            </h3>
+            <p className="text-xs text-text-muted mt-0.5 leading-relaxed">
+              Raw material mapping matrices providing dynamic ingredient consumption metrics and stock-out warnings
+            </p>
+          </div>
+          <span className="text-[9px] font-mono font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-xl self-start sm:self-auto shrink-0">
+            2 Low-Stock Ingredients Detected
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Item 1 */}
+          <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/5 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+                <FiTrendingDown size={14} />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-white">Premium Mozzarella Matrix</p>
+                <p className="text-[9px] text-text-muted">Current depletion: <strong className="text-amber-400">4.2 Kg</strong> remaining</p>
+              </div>
+            </div>
+            <span className="text-[8px] font-bold uppercase tracking-widest text-text-muted bg-white/5 px-2 py-0.5 rounded">
+              Refill recommended
+            </span>
+          </div>
+
+          {/* Item 2 */}
+          <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/5 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+                <FiTrendingDown size={14} />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-white">Imported Truffle Olive Oil</p>
+                <p className="text-[9px] text-text-muted">Current depletion: <strong className="text-amber-400">1.8 Liters</strong> remaining</p>
+              </div>
+            </div>
+            <span className="text-[8px] font-bold uppercase tracking-widest text-text-muted bg-white/5 px-2 py-0.5 rounded">
+              Critical Warning
+            </span>
+          </div>
+        </div>
+      </div>
+
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="relative group flex-1 max-w-md">
           <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-primary transition-colors" size={20} />
