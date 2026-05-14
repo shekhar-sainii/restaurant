@@ -333,7 +333,7 @@ const PaymentMgmt = () => {
               <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-primary transition-colors" size={18} />
               <input type="text" placeholder="Search by order ID or customer..."
                 value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-                className="w-full bg-bg-neutral/40 border border-white/10 rounded-2xl py-3.5 pl-11 pr-4 outline-none focus:border-primary/40 transition-all text-sm placeholder:text-white/10" />
+                className="w-full bg-white/[0.05] border border-white/10 rounded-2xl py-3.5 pl-11 pr-4 outline-none focus:border-primary/50 transition-all text-white font-bold text-sm placeholder:text-white/30 shadow-inner" />
             </div>
 
             <div className="flex items-center gap-3 flex-wrap">

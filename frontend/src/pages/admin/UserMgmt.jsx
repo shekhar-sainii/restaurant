@@ -244,7 +244,7 @@ const UserMgmt = () => {
             placeholder="Search members & staff..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-bg-neutral/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-primary/40 transition-all placeholder:text-white/10 text-sm"
+            className="w-full bg-white/[0.05] border border-white/10 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-primary/50 transition-all placeholder:text-white/30 text-white font-bold text-sm shadow-inner"
           />
         </div>
 
