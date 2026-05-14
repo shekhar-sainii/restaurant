@@ -3,7 +3,7 @@ const requireRole = require("./role.middleware");
 const guestOrUser = require("./guestOrUser.middleware");
 const validate = require("./validate.middleware");
 const upload = require("./upload.middleware");
-const rateLimiter = require("./rateLimiter.middleware");
+const { rateLimiter, checkoutRateLimiter } = require("./rateLimiter.middleware");
 const sanitize = require("./sanitize.middleware");
 const requestId = require("./requestId.middleware");
 const requestLogger = require("./requestLogger.middleware");
@@ -18,6 +18,7 @@ module.exports = {
   validate,
   upload,
   rateLimiter,
+  checkoutRateLimiter,
   sanitize,
   requestId,
   requestLogger,

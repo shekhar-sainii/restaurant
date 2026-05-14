@@ -10,18 +10,20 @@ const adminRoutes   = require("../../modules/admin/admin.routes");
 const superAdminRoutes = require("../../modules/super-admin/super-admin.controller");
 const publicRoutes  = require("./public.routes");
 const healthRoutes  = require("./health.routes");
-const { verifyAccessToken, requireRole, resolveTenant, resolveTenantSoft } = require("../../middlewares");
+const { verifyAccessToken, requireRole, resolveTenant, resolveTenantSoft, rateLimiter, checkoutRateLimiter } = require("../../middlewares");
 
 const router = express.Router();
+
+// Apply standard global API protection limiter
+router.use(rateLimiter);
 
 // Health — no auth
 router.use("/health", healthRoutes);
 
-// Auth — no DB connection needed, just resolve tenantId from header
-router.use("/auth", (req, res, next) => {
-  // Set tenantId from header/query without connecting to tenant DB
+// Auth — protected with stricter fraud/abuse rate limits
+router.use("/auth", checkoutRateLimiter, (req, res, next) => {
   req.tenantId = req.headers["x-tenant-slug"] || req.query.tenant || null;
-  req.db = require("mongoose").connection; // always use master for auth
+  req.db = require("mongoose").connection; 
   next();
 }, authRoutes);
 
@@ -31,8 +33,8 @@ router.use("/public", resolveTenantSoft, publicRoutes);
 // Tenant-scoped routes — require tenant resolution
 router.use("/categories", verifyAccessToken, resolveTenant, categoryRoutes);
 router.use("/products",   verifyAccessToken, resolveTenant, productRoutes);
-router.use("/orders",     resolveTenantSoft, orderRoutes);
-router.use("/payments",   resolveTenantSoft, paymentRoutes);
+router.use("/orders",     checkoutRateLimiter, resolveTenantSoft, orderRoutes);
+router.use("/payments",   checkoutRateLimiter, resolveTenantSoft, paymentRoutes);
 router.use("/tables",     resolveTenantSoft, tableRoutes);
 router.use("/user",       verifyAccessToken, userRoutes);
 

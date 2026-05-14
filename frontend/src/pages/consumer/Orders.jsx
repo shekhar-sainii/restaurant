@@ -79,7 +79,6 @@ const OrderCard = ({ order, slug, onTrack }) => {
            </button>
         </div>
       </div>
-// ... existing OrderCard footer ...
 
 
       <div className="mt-8 pt-8 border-t border-white/5 flex items-center justify-between">
