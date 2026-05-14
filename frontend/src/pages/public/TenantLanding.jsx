@@ -85,7 +85,7 @@ const TenantLanding = () => {
         )}
 
         <p className="text-center text-[10px] text-text-muted mt-10 uppercase tracking-widest">
-          Powered by SaaS Platform
+          Powered by DineSync Platform
         </p>
       </motion.div>
     </div>

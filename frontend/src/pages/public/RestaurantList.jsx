@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ChevronRight, Utensils, Star, Clock, MapPin, Search, Filter, ShieldCheck } from 'lucide-react';
+import { 
+  ChevronRight, Utensils, Star, Clock, MapPin, Search, ShieldCheck, 
+  Zap, Layers, Server, Cpu, CheckCircle2, ArrowUpRight, TrendingUp, 
+  Users, Smartphone, Globe 
+} from 'lucide-react';
 import axios from 'axios';
 
 const RestaurantList = () => {
@@ -9,215 +13,330 @@ const RestaurantList = () => {
   const [platform, setPlatform] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
 
   useEffect(() => {
     Promise.all([
-      axios.get('/api/v1/public/tenants'),
+      axios.get('/api/v1/public/tenants').catch(() => ({ data: { data: [] } })),
       axios.get('/api/v1/public/platform').catch(() => ({ data: { data: null } }))
     ])
       .then(([resTenants, resPlatform]) => {
-        setRestaurants(resTenants.data.data || []);
+        setRestaurants(resTenants.data?.data || []);
         if (resPlatform.data?.data) {
           setPlatform(resPlatform.data.data);
         }
       })
-      .catch(err => console.error('Failed to fetch data:', err))
+      .catch(err => console.error('Failed to fetch platform state:', err))
       .finally(() => setLoading(false));
   }, []);
 
-  const filteredRestaurants = restaurants.filter(res => 
-    res.businessName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredRestaurants = restaurants.filter(res => {
+    const matchesSearch = res.businessName?.toLowerCase().includes(searchTerm.toLowerCase());
+    if (selectedCategory === 'All') return matchesSearch;
+    if (selectedCategory === 'Fine Dining') return matchesSearch && (!res.businessType || res.businessType === 'RESTAURANT');
+    if (selectedCategory === 'Quick Service') return matchesSearch && res.businessType?.includes('FAST');
+    if (selectedCategory === 'Cloud Kitchens') return matchesSearch && res.businessType !== 'RESTAURANT';
+    return matchesSearch;
+  });
 
-  // Platform theme defaults
+  // Enterprise palette mappings
   const primary = platform?.theme?.primaryColor || '#c9a227';
-  const bg = platform?.theme?.backgroundColor || '#050505';
+  const bg = platform?.theme?.backgroundColor || '#030303';
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center transition-colors" style={{ backgroundColor: bg }}>
-        <div className="relative">
-          <div className="w-16 h-16 border-2 rounded-full" style={{ borderColor: `${primary}20` }} />
-          <div className="w-16 h-16 border-2 border-t-transparent rounded-full animate-spin absolute top-0 left-0" style={{ borderColor: primary, borderTopColor: 'transparent' }} />
-          <Utensils className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" style={{ color: primary }} size={20} />
+        <div className="relative flex flex-col items-center gap-4">
+          <div className="w-20 h-20 border-2 rounded-full" style={{ borderColor: `${primary}15` }} />
+          <div className="w-20 h-20 border-2 border-t-transparent rounded-full animate-spin absolute top-0" style={{ borderColor: primary }} />
+          <Utensils className="absolute top-7 text-primary animate-pulse" size={24} />
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-text-muted mt-2">Initializing OS Kernel...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen text-white transition-colors duration-500" style={{ backgroundColor: bg }}>
+    <div className="min-h-screen text-white transition-colors duration-700 font-sans selection:bg-primary selection:text-black" style={{ backgroundColor: bg }}>
       
-      {/* ── Background Elements ── */}
+      {/* ── Dynamic Glowing Background Gradients ── */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] blur-[120px] rounded-full transition-colors duration-1000" style={{ backgroundColor: `${primary}15` }} />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#aa3bff]/5 blur-[120px] rounded-full" />
+        <div className="absolute top-[-15%] right-[-10%] w-[60vw] h-[60vw] rounded-full blur-[160px] opacity-25 transition-all duration-1000 animate-pulse" style={{ backgroundColor: primary }} />
+        <div className="absolute bottom-[-10%] left-[-15%] w-[50vw] h-[50vw] rounded-full bg-[#8a2be2] blur-[180px] opacity-15" />
+        <div className="absolute top-[40%] left-[20%] w-[30vw] h-[30vw] rounded-full bg-blue-600/10 blur-[140px]" />
+        
+        {/* Subtle background tech grid overlay */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-40" />
       </div>
 
-      {/* ── Hero Section ── */}
-      <section className="relative pt-32 pb-20 px-6 z-10">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8" style={{ color: primary }}>
-                <ShieldCheck size={14} />
-                <span className="text-[10px] font-black uppercase tracking-[0.2em]">{platform?.brandName || 'Certified Premium Dining'}</span>
-              </div>
-              
-              <h1 className="text-5xl md:text-7xl font-playfair font-bold leading-[1.1] mb-8" dangerouslySetInnerHTML={{ __html: (platform?.heroTitle || 'The Elite <br /> <span class="italic">Epicurean</span> <br /> Collection').replace(/class="italic"/, `style="color: ${primary}; font-style: italic"`) }} />
-              
-              <p className="text-text-muted text-lg font-light leading-relaxed max-w-lg mb-10">
-                {platform?.heroSubtitle || 'Explore a curated selection of the finest multi-tenant restaurants. Every plate tells a story of passion and excellence.'}
-              </p>
+      {/* ── Enterprise Hero Landing Layer ── */}
+      <section className="relative pt-28 pb-16 px-6 z-10 overflow-hidden">
+        <div className="max-w-7xl mx-auto text-center">
+          
+          {/* Top floating Status Pill */}
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/[0.03] border border-white/10 backdrop-blur-xl mb-8 hover:border-primary/40 transition-all cursor-default"
+          >
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white/90">
+              {platform?.brandName || 'DineSync'} Enterprise Cloud OS v2.6
+            </span>
+            <span className="text-[9px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">PRODUCTION</span>
+          </motion.div>
 
-              {/* Search Bar */}
-              <div className="relative max-w-md group">
-                <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-text-muted transition-colors opacity-50" size={20} />
-                <input 
-                  type="text"
-                  placeholder="Search for your favorite kitchen..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full bg-white/[0.03] border border-white/10 rounded-3xl py-6 pl-14 pr-6 outline-none transition-all text-sm font-medium backdrop-blur-xl"
-                  style={{ '--tw-ring-color': primary }}
-                  onFocus={(e) => e.target.style.borderColor = primary}
-                  onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
-                />
-              </div>
-            </motion.div>
+          {/* Main Headline Headline */}
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+            className="text-5xl sm:text-7xl lg:text-8xl font-playfair font-black tracking-tight leading-[1.05] max-w-5xl mx-auto mb-8"
+          >
+            Orchestrate Fine Dining at <br className="hidden md:block" />
+            <span className="bg-gradient-to-r from-white via-white/90 to-white/60 bg-clip-text text-transparent">
+              Enterprise <span className="italic underline decoration-primary/40 underline-offset-8" style={{ color: primary }}>Scale</span>
+            </span>
+          </motion.h1>
 
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1 }}
-              className="relative hidden lg:block"
-            >
-              <div className="aspect-[4/5] rounded-[4rem] overflow-hidden border border-white/10 shadow-2xl relative group">
-                <img 
-                  src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2070" 
-                  alt="Fine Dining" 
-                  className="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all duration-1000 scale-105 group-hover:scale-100"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent opacity-60" />
-                
-                {/* Floating Stat Card */}
-                <div className="absolute bottom-10 left-[-40px] glass p-6 rounded-3xl border border-white/10 shadow-2xl animate-bounce-slow">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-primary/20 rounded-2xl flex items-center justify-center text-primary">
-                      <Utensils size={24} />
+          {/* Executive Subtitle */}
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-text-muted text-lg sm:text-xl font-light leading-relaxed max-w-3xl mx-auto mb-12 text-white/70"
+          >
+            The comprehensive multi-tenant SaaS platform empowering autonomous cloud kitchens, flagship table hubs, and enterprise fleets with real-time socket syncing.
+          </motion.p>
+
+          {/* Search + Primary Navigation Triggers */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="max-w-2xl mx-auto mb-16"
+          >
+            <div className="relative flex items-center group">
+              <Search className="absolute left-6 text-text-muted transition-colors group-focus-within:text-primary" size={20} />
+              <input 
+                type="text"
+                placeholder="Search active kitchens, tenant domains, or distinct specialty cuisines..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-white/[0.04] border border-white/10 rounded-full py-5 pl-16 pr-36 outline-none transition-all text-sm font-medium backdrop-blur-2xl focus:bg-white/[0.06] shadow-2xl"
+                style={{ borderColor: searchTerm ? primary : 'rgba(255,255,255,0.1)' }}
+              />
+              <button 
+                onClick={() => {
+                  const el = document.getElementById('tenant-grid');
+                  el?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="absolute right-2 px-6 py-3 rounded-full text-black text-xs font-black uppercase tracking-widest transition-transform hover:scale-105 active:scale-95 flex items-center gap-1"
+                style={{ backgroundColor: primary }}
+              >
+                <span>Browse</span>
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </motion.div>
+
+          {/* Live Platform SLA Statistics Array */}
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl mx-auto pt-6 border-t border-white/5"
+          >
+            {[
+              { icon: Server, label: "Infrastructure Uptime", val: "99.99%", desc: "Multi-Region Cloud Containers" },
+              { icon: Zap, label: "Event Loops Sync", val: "< 12ms", desc: "Bi-Directional Socket Pipeline" },
+              { icon: Layers, label: "Tenant Partitioning", val: "Isolated", desc: "Mongoose Document Enforced" },
+              { icon: ShieldCheck, label: "Payment Ledger", val: "Instant", desc: "Dynamic Automated UPI Hooks" }
+            ].map((stat, idx) => {
+              const Icon = stat.icon;
+              return (
+                <div key={idx} className="glass p-5 rounded-3xl border border-white/5 text-left relative overflow-hidden group hover:border-white/10 transition-all">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-white/5 to-transparent rounded-bl-full pointer-events-none" />
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-2 rounded-xl bg-white/5 text-primary border border-white/5">
+                      <Icon size={18} />
                     </div>
-                    <div>
-                      <p className="text-2xl font-bold font-playfair">50+</p>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Active Cuisines</p>
-                    </div>
+                    <span className="text-[9px] font-black uppercase tracking-widest text-text-muted">{stat.label}</span>
                   </div>
+                  <p className="text-3xl font-playfair font-black text-white group-hover:text-primary transition-colors">{stat.val}</p>
+                  <p className="text-[10px] text-text-muted mt-1 font-medium">{stat.desc}</p>
                 </div>
-              </div>
-            </motion.div>
+              );
+            })}
+          </motion.div>
 
-          </div>
         </div>
       </section>
 
-      {/* ── Main Content ── */}
+      {/* ── Enterprise Value Matrix Section ── */}
       <section className="relative py-20 px-6 z-10 border-t border-white/5 bg-white/[0.01]">
         <div className="max-w-7xl mx-auto">
           
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-xs font-black uppercase tracking-[0.3em] text-primary mb-3">Engineered For Reliability</h2>
+            <h3 className="text-3xl md:text-4xl font-playfair font-bold text-white">Enterprise Modules &amp; Capabilities</h3>
+            <p className="text-text-muted text-sm mt-3">High-performance micro-architecture standard across all onboarded restaurants.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                title: "Dynamic Custom Storefronts",
+                icon: Globe,
+                desc: "Instant isolated multi-tenant mapping resolving completely customized dynamic CSS color variables and local banner imagery instantly."
+              },
+              {
+                title: "Live Sockets Synchronization",
+                icon: Cpu,
+                desc: "Continuous low-latency WebSockets pipelines pushing instant order status progressions, active table tracking, and live kitchen monitor updates."
+              },
+              {
+                title: "Instant Secure Checkouts",
+                icon: Smartphone,
+                desc: "Embedded custom dynamic UPI QR generation logic enforcing accurate token validation before marking global fulfillment statuses."
+              }
+            ].map((mod, index) => {
+              const MIcon = mod.icon;
+              return (
+                <div key={index} className="bg-white/[0.02] border border-white/5 p-8 rounded-[2.5rem] relative group hover:bg-white/[0.04] transition-all duration-500">
+                  <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
+                    <MIcon size={24} />
+                  </div>
+                  <h4 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
+                    <span>{mod.title}</span>
+                    <CheckCircle2 size={14} className="text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </h4>
+                  <p className="text-text-muted text-xs leading-relaxed font-light">{mod.desc}</p>
+                </div>
+              );
+            })}
+          </div>
+
+        </div>
+      </section>
+
+      {/* ── Live Multi-Tenant Storefront Ecosystem ── */}
+      <section id="tenant-grid" className="relative py-20 px-6 z-10 border-t border-white/5 bg-black/20">
+        <div className="max-w-7xl mx-auto">
+          
+          {/* Header Controls */}
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-12 gap-6">
             <div>
-              <h2 className="text-4xl font-playfair font-bold mb-4">Discover Restaurants</h2>
-              <div className="h-1 w-20 rounded-full transition-colors" style={{ backgroundColor: primary }} />
+              <div className="flex items-center gap-2 mb-2">
+                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: primary }} />
+                <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">ACTIVE PROVISIONS</span>
+              </div>
+              <h2 className="text-4xl font-playfair font-bold text-white tracking-tight">Onboarded Kitchens &amp; Outlets</h2>
             </div>
             
-            <div className="flex gap-4">
-               {['All', 'Italian', 'Burgers', 'Premium'].map((cat) => (
-                 <button key={cat} className="px-6 py-2 rounded-full border border-white/10 text-[11px] font-black uppercase tracking-widest transition-all hover:bg-white/5" onMouseEnter={e => e.target.style.color = primary} onMouseLeave={e => e.target.style.color = 'inherit'}>
-                   {cat}
-                 </button>
-               ))}
+            {/* Category Filter Pills */}
+            <div className="flex flex-wrap gap-2 p-1.5 bg-white/[0.03] border border-white/10 rounded-full backdrop-blur-xl">
+              {['All', 'Fine Dining', 'Quick Service', 'Cloud Kitchens'].map((cat) => (
+                <button 
+                  key={cat} 
+                  onClick={() => setSelectedCategory(cat)}
+                  className="px-5 py-2 rounded-full text-xs font-bold transition-all"
+                  style={{ 
+                    backgroundColor: selectedCategory === cat ? primary : 'transparent',
+                    color: selectedCategory === cat ? '#000' : 'rgba(255,255,255,0.7)',
+                  }}
+                >
+                  {cat}
+                </button>
+              ))}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+          {/* Grid Container */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <AnimatePresence>
               {filteredRestaurants.map((res, idx) => (
                 <motion.div
                   key={res.slug}
                   layout
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.5, delay: idx * 0.1 }}
-                  className="group relative"
+                  initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                  transition={{ duration: 0.5, delay: idx * 0.05 }}
+                  className="group h-full"
                 >
                   <Link to={`/${res.slug}`} className="block h-full">
-                    {/* Modern Card Design */}
-                    <div className="bg-white/[0.02] border border-white/5 rounded-[3rem] overflow-hidden transition-all duration-500 h-full group-hover:bg-white/[0.04] group-hover:-translate-y-2 group-hover:shadow-[0_20px_40px_rgba(0,0,0,0.5)] flex flex-col"
-                      onMouseEnter={e => e.currentTarget.style.borderColor = `${primary}50`}
-                      onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)'}>
+                    <div className="bg-white/[0.02] border border-white/5 rounded-[2.5rem] overflow-hidden transition-all duration-500 h-full group-hover:bg-white/[0.05] group-hover:-translate-y-2 group-hover:border-primary/40 group-hover:shadow-[0_20px_40px_rgba(0,0,0,0.6)] flex flex-col relative">
                       
-                      {/* Image Area */}
-                      <div className="aspect-[16/10] relative overflow-hidden m-4 rounded-[2.5rem]">
+                      {/* Operational Engine Ribbon overlay */}
+                      <div className="absolute top-4 right-4 z-20">
+                        <span className="glass px-3 py-1 rounded-full border border-white/10 text-[9px] font-black tracking-widest text-emerald-400 uppercase backdrop-blur-xl shadow-2xl flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                          ONLINE
+                        </span>
+                      </div>
+
+                      {/* Image Frame */}
+                      <div className="aspect-[16/10] relative overflow-hidden m-3 rounded-[2rem]">
                         {res.logo ? (
                           <img 
-                            src={res.logo.startsWith('http') ? res.logo : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${res.logo}`} 
+                            src={res.logo.startsWith('http') ? res.logo : `${import.meta.env.VITE_API_URL || ''}${res.logo}`} 
                             alt={res.businessName}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                            onError={(e) => {
+                              // fallback
+                              e.currentTarget.style.display = 'none';
+                            }}
                           />
-                        ) : (
-                          <div className="absolute inset-0 flex items-center justify-center transition-colors" style={{ background: `linear-gradient(to bottom right, ${primary}20, rgba(0,0,0,0))` }}>
-                            <Utensils size={48} className="text-white/20" />
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-60" />
+                        ) : null}
+
+                        {/* Fallback pattern if logo fails or empty */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/[0.01] flex items-center justify-center -z-10">
+                          <Utensils size={40} className="text-white/10" />
+                        </div>
+
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
                         
-                        {/* Badges */}
-                        <div className="absolute top-5 left-5 flex gap-2">
-                          <div className="glass px-4 py-1.5 rounded-full border border-white/10 flex items-center gap-2">
-                             <Star size={12} style={{ color: primary, fill: primary }} />
-                             <span className="text-[10px] font-black">4.9</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Content Area */}
-                      <div className="p-8 pt-2 flex-1 flex flex-col">
-                        <div className="flex justify-between items-center mb-6">
-                           <h3 className="text-3xl font-playfair font-bold text-white transition-colors" 
-                            onMouseEnter={e => e.target.style.color = primary} 
-                            onMouseLeave={e => e.target.style.color = '#fff'}>
+                        {/* Title Overlay inside Image frame */}
+                        <div className="absolute bottom-4 left-4 right-4">
+                          <p className="text-[9px] font-black uppercase tracking-widest text-primary mb-1">
+                            {res.businessType ? res.businessType.replace('_', ' ') : 'PREMIUM OUTLET'}
+                          </p>
+                          <h3 className="text-2xl font-playfair font-bold text-white tracking-tight leading-none group-hover:text-primary transition-colors">
                             {res.businessName}
-                           </h3>
-                        </div>
-
-                        <div className="flex flex-wrap gap-6 mb-10">
-                          <div className="flex items-center gap-2 text-text-muted">
-                            <Clock size={16} className="text-primary/60" />
-                            <span className="text-[10px] font-black uppercase tracking-widest">25-35 MIN</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-text-muted">
-                            <MapPin size={16} className="text-primary/60" />
-                            <span className="text-[10px] font-black uppercase tracking-widest">1.2 KM</span>
-                          </div>
-                        </div>
-
-                        <div className="mt-auto flex items-center justify-between pt-8 border-t border-white/5">
-                           <div className="flex flex-col">
-                             <span className="text-[9px] font-black uppercase tracking-widest text-text-muted mb-1">Cuisine Style</span>
-                             <span className="text-xs font-bold text-white/80 italic">{res.businessType || 'Fine Dining'}</span>
-                           </div>
-                           <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center transition-all duration-500"
-                            onMouseEnter={e => { e.currentTarget.style.backgroundColor = primary; e.currentTarget.style.borderColor = primary; e.currentTarget.style.color = '#000'; }}
-                            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = '#fff'; }}>
-                             <ChevronRight size={20} />
-                           </div>
+                          </h3>
                         </div>
                       </div>
+
+                      {/* Card Analytics Area */}
+                      <div className="p-6 pt-3 flex-1 flex flex-col justify-between">
+                        
+                        <div className="flex items-center justify-between py-3 border-b border-white/5 mb-4 text-xs text-text-muted">
+                          <span className="flex items-center gap-1.5">
+                            <Clock size={14} className="text-primary/60" />
+                            <span>Instant Setup</span>
+                          </span>
+                          <span className="flex items-center gap-1.5">
+                            <Star size={14} className="text-primary fill-primary" />
+                            <span className="text-white font-bold">4.9 SLA</span>
+                          </span>
+                        </div>
+
+                        {/* Action execution */}
+                        <div className="flex items-center justify-between pt-2">
+                          <div className="flex items-center gap-1.5 text-text-muted text-[11px] font-mono">
+                            <span className="text-primary">🔗</span>
+                            <span>/{res.slug}</span>
+                          </div>
+                          
+                          <div className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-primary group-hover:border-primary group-hover:text-black transition-all">
+                            <ArrowUpRight size={16} />
+                          </div>
+                        </div>
+
+                      </div>
+
                     </div>
                   </Link>
                 </motion.div>
@@ -225,28 +344,48 @@ const RestaurantList = () => {
             </AnimatePresence>
           </div>
 
+          {/* Empty search catch */}
           {filteredRestaurants.length === 0 && (
-            <div className="py-40 text-center">
-              <Search size={64} className="mx-auto text-white/5 mb-6" />
-              <p className="text-text-muted font-playfair italic text-2xl">No kitchens matched your search criteria...</p>
+            <div className="py-32 text-center glass rounded-3xl border border-white/5 max-w-2xl mx-auto mt-8">
+              <Layers size={48} className="mx-auto text-white/20 mb-4" />
+              <p className="text-white font-playfair italic text-xl mb-1">No operational partitions detected</p>
+              <p className="text-xs text-text-muted">Adjust filters or search parameters to view provisioned store layers.</p>
             </div>
           )}
+
         </div>
       </section>
 
-      {/* ── Footer ── */}
-      <footer className="py-20 px-6 border-t border-white/5 z-10 relative transition-colors duration-500" style={{ backgroundColor: bg }}>
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
+      {/* ── Enterprise Footer ── */}
+      <footer className="py-16 px-6 border-t border-white/5 z-10 relative transition-colors duration-500 bg-black/40">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
+          
           <div>
-            <h2 className="text-2xl font-playfair font-bold mb-2 transition-colors" style={{ color: primary }}>{platform?.brandName || 'Gourmet Hub'}</h2>
-            <p className="text-text-muted text-[10px] uppercase font-black tracking-widest">Premium Multi-Tenant SaaS Experience</p>
+            <div className="flex items-center justify-center md:justify-start gap-2.5 mb-3">
+              <div className="p-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20">
+                <Utensils size={18} />
+              </div>
+              <span className="text-xl font-playfair font-black text-white tracking-tight">{platform?.brandName || 'DineSync'}</span>
+            </div>
+            <p className="text-text-muted text-xs max-w-sm">
+              Advanced Multi-Tenant Cloud Operating System built for scalability, zero-trust token handshakes, and absolute fine dining excellence.
+            </p>
           </div>
-          <div className="flex gap-10">
-            <a href="#" className="text-[10px] font-black uppercase tracking-widest text-text-muted hover:text-white transition-colors" onMouseEnter={e => e.target.style.color = primary} onMouseLeave={e => e.target.style.color = ''}>Privacy</a>
-            <a href="#" className="text-[10px] font-black uppercase tracking-widest text-text-muted hover:text-white transition-colors" onMouseEnter={e => e.target.style.color = primary} onMouseLeave={e => e.target.style.color = ''}>Terms</a>
-            <a href="#" className="text-[10px] font-black uppercase tracking-widest text-text-muted hover:text-white transition-colors" onMouseEnter={e => e.target.style.color = primary} onMouseLeave={e => e.target.style.color = ''}>Contact</a>
+
+          <div className="flex flex-wrap justify-center gap-8 text-xs font-bold text-text-muted">
+            <a href="#" className="hover:text-white transition-colors">Architecture Logs</a>
+            <a href="#" className="hover:text-white transition-colors">API References</a>
+            <a href="#" className="hover:text-white transition-colors">SLA Audits</a>
+            <Link to="/super-admin/login" className="text-primary hover:underline">Platform Command Hub</Link>
           </div>
-          <p className="text-[10px] text-text-muted uppercase tracking-widest font-black">© 2026 {platform?.brandName || 'QService'}. All rights reserved.</p>
+
+          <div className="text-right">
+            <p className="text-[10px] text-text-muted uppercase tracking-widest font-black">
+              © 2026 {platform?.brandName || 'DineSync'} Systems.
+            </p>
+            <p className="text-[9px] text-text-muted/60 mt-1">Culinary Infrastructure Redefined.</p>
+          </div>
+
         </div>
       </footer>
 

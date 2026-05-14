@@ -28,11 +28,11 @@ const envVarsSchema = Joi.object()
     MAIL_SECURE: Joi.boolean().default(false),
     MAIL_USER: Joi.string().allow("").description("SMTP email user"),
     MAIL_PASS: Joi.string().allow("").description("SMTP email password"),
-    MAIL_FROM_NAME: Joi.string().default("Pizza Kings"),
+    MAIL_FROM_NAME: Joi.string().default("DineSync"),
     MAIL_FROM_ADDRESS: Joi.string().allow("").description("From email address"),
     UPI_ID_PRIMARY: Joi.string().default("shivanshsaini733@oksbi"),
     UPI_ID_SECONDARY: Joi.string().default("9520640928@okbizaxis"),
-    UPI_MERCHANT_NAME: Joi.string().default("Pizza Kings"),
+    UPI_MERCHANT_NAME: Joi.string().default("DineSync"),
   })
   .unknown();
 

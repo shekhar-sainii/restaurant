@@ -60,8 +60,9 @@ const Navbar = ({ onMenuClick }) => {
       </span>
     </div>
   ) : (
-    <span className="text-xl md:text-2xl font-playfair font-bold text-primary tracking-tight">
-      Gourmet Hub
+    <span className="text-xl md:text-2xl font-playfair font-bold text-primary tracking-tight flex items-center gap-2">
+      <Utensils className="text-primary inline-block" size={22} />
+      DineSync
     </span>
   );
 

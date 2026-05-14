@@ -1,4 +1,4 @@
-# 🍽️ Premium Multi-Tenant Restaurant SaaS Platform
+# 🍽️ DineSync - Premium Multi-Tenant Restaurant SaaS Platform
 
 A state-of-the-art, full-stack multi-tenant restaurant and cloud kitchen management platform. Designed with rich glassmorphism aesthetics, live WebSocket updates, secure online payments, and robust multi-container cloud infrastructure.
 

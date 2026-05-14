@@ -9,7 +9,7 @@ const MainLayout = () => {
         <Outlet />
       </main>
       <footer className="py-12 border-t border-white/5 text-center text-text-muted text-sm px-6">
-        <p>© 2026 Pizza Kings. Culinary Excellence Redefined.</p>
+        <p>© 2026 DineSync. Culinary Excellence Redefined.</p>
       </footer>
     </div>
   );
