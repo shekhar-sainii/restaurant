@@ -7,6 +7,9 @@ export default defineConfig({
   plugins: [
     react(),
   ],
+  define: {
+    'import.meta.env.VITE_API_URL': JSON.stringify('https://restaurant-q70h.onrender.com')
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

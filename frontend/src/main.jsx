@@ -9,7 +9,7 @@ import axios from 'axios'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 
 // Establish remote API resolution layer for dynamic cloud production builds
-const remoteTarget = import.meta.env.VITE_API_URL;
+const remoteTarget = import.meta.env.VITE_API_URL || 'https://restaurant-q70h.onrender.com';
 if (remoteTarget) {
   axios.defaults.baseURL = remoteTarget.replace(/\/$/, '');
 }
