@@ -143,7 +143,7 @@ const CartDrawer = () => {
                   <span className="text-xl font-playfair font-bold text-primary">₹{cartTotal}</span>
                 </div>
                 <p className="text-[10px] text-text-muted uppercase tracking-wider text-center">
-                  Gourmet Excellence • Complimentary Inside Service
+                  Culinary Excellence • Complimentary Inside Service
                 </p>
                 <button
                   onClick={handleProceedToCheckout}

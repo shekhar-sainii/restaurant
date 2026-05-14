@@ -46,7 +46,7 @@ const Cart = () => {
         Add More Items
       </Link>
       <p className="text-text-muted text-sm uppercase tracking-widest font-bold mb-12">
-        Review your gourmet choices for {tenant?.businessName}
+        Review your culinary choices for {tenant?.businessName}
       </p>
 
       {cartItems.length === 0 ? (

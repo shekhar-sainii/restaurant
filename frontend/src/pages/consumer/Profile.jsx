@@ -214,7 +214,7 @@ const Profile = () => {
         <div className="flex flex-col items-center justify-center py-10 opacity-30 text-center">
             <ShoppingBag size={48} className="mb-4" />
             <p className="text-sm uppercase tracking-widest font-black">No recent orders found</p>
-            <p className="text-xs mt-2">Hungry? Explore our gourmet selection.</p>
+            <p className="text-xs mt-2">Hungry? Explore our culinary selection.</p>
         </div>
       </section>
 

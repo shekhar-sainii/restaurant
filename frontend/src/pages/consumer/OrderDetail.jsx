@@ -133,7 +133,7 @@ const OrderDetail = () => {
                  order.orderStatus === 'SERVED' || order.orderStatus === 'DELIVERED' ? 'Experience Complete' : 'En Route to You'}
               </h2>
               <p className="text-text-muted italic max-w-sm font-light">
-                {order.orderType === 'DINING' ? `Ensuring every detail is perfect for Table #${order.tableNumber}` : `Our courier is ensuring your gourmet delivery remains pristine`}
+                {order.orderType === 'DINING' ? `Ensuring every detail is perfect for Table #${order.tableNumber}` : `Our courier is ensuring your culinary delivery remains pristine`}
               </p>
             </div>
 

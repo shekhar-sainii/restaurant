@@ -120,7 +120,7 @@ const ProductMgmt = () => {
       label: 'Category', 
       render: (val) => (
         <span className="text-[10px] px-3 py-1 rounded-full bg-white/5 border border-white/5 uppercase tracking-widest font-black text-text-muted">
-          {val?.name || 'Gourmet'}
+          {val?.name || 'Product'}
         </span>
       )
     },
@@ -162,7 +162,7 @@ const ProductMgmt = () => {
           <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-primary transition-colors" size={20} />
           <input 
             type="text" 
-            placeholder="Search gourmets..."
+            placeholder="Search products..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-bg-neutral/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-primary/40 transition-all placeholder:text-white/10 text-sm"
@@ -232,7 +232,7 @@ const ProductMgmt = () => {
 
             <div className="grid grid-cols-2 gap-4">
                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-1">
-                 <p className="text-[10px] text-text-muted uppercase font-black tracking-widest">Gourmet Label</p>
+                 <p className="text-[10px] text-text-muted uppercase font-black tracking-widest">Product Label</p>
                  <p className="text-sm text-white font-bold">{selectedProduct.name}</p>
                </div>
                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-1">
@@ -264,7 +264,7 @@ const ProductMgmt = () => {
                <div className="pt-6 border-t border-white/5">
                   <p className="text-[10px] text-text-muted uppercase font-black tracking-widest mb-3">Product Description</p>
                   <p className="text-xs text-text-muted leading-relaxed italic">
-                    {selectedProduct.description || 'No descriptive intel available for this gourmet selection.'}
+                    {selectedProduct.description || 'No descriptive intel available for this product selection.'}
                   </p>
                </div>
             </div>
@@ -282,7 +282,7 @@ const ProductMgmt = () => {
       <Modal
         isOpen={isFormModalOpen}
         onClose={() => setIsFormModalOpen(false)}
-        title={selectedProduct ? 'Edit Gourmet' : 'Add New Gourmet'}
+        title={selectedProduct ? 'Edit Product' : 'Add New Product'}
       >
         <ProductForm 
           product={selectedProduct}
@@ -294,7 +294,7 @@ const ProductMgmt = () => {
       {/* Delete Confirmation Modal */}
       <ConfirmModal
         isOpen={isDeleteModalOpen}
-        title="Delete Gourmet?"
+        title="Delete Product?"
         message={`This will permanently remove "${selectedProduct?.name}" from your catalog. Products cannot be recovered once deleted.`}
         confirmText="Yes, Delete Product"
         onConfirm={handleDeleteConfirm}

@@ -121,7 +121,7 @@ const Register = () => {
 
             <header className="mb-10">
               <h1 className="text-4xl md:text-5xl font-playfair font-bold mb-3">Join the Club</h1>
-              <p className="text-text-muted text-sm font-light">Create your gourmet account to track orders and save favorites.</p>
+              <p className="text-text-muted text-sm font-light">Create your culinary account to track orders and save favorites.</p>
             </header>
 
             {error && (
@@ -148,7 +148,7 @@ const Register = () => {
                       required
                       value={formData.name}
                       onChange={handleChange}
-                      placeholder="Gourmet Lover"
+                      placeholder="Culinary Lover"
                       className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-primary/40 transition-all text-sm"
                     />
                   </div>
@@ -183,7 +183,7 @@ const Register = () => {
                     required
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="guest@gourmet.com"
+                    placeholder="guest@dinesync.com"
                     className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-primary/40 transition-all text-sm"
                   />
                 </div>
@@ -260,7 +260,7 @@ const Register = () => {
                   <Loader2 className="animate-spin" size={20} />
                 ) : (
                   <>
-                    <span className="text-xs font-black uppercase tracking-widest">Create Gourmet Account</span>
+                    <span className="text-xs font-black uppercase tracking-widest">Create DineSync Account</span>
                     <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
                   </>
                 )}

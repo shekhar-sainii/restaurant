@@ -96,7 +96,7 @@ const TrackingModal = ({ orderId, isOpen, onClose, tenant, slug }) => {
                     <CheckCircle2 size={48} />
                  </div>
                  <h2 className="text-4xl font-playfair font-bold text-white">Successfully {order.orderStatus === 'SERVED' ? 'Served' : 'Delivered'}</h2>
-                 <p className="text-text-muted italic max-w-sm mb-6">The gourmet journey is complete. We trust every detail met your expectations. Until our next encounter.</p>
+                 <p className="text-text-muted italic max-w-sm mb-6">The culinary journey is complete. We trust every detail met your expectations. Until our next encounter.</p>
                  <button onClick={onClose} className="btn-primary px-10 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest">Excellent</button>
               </motion.div>
             ) : (

@@ -146,7 +146,7 @@ const About = () => {
               <div>
                 <h4 className="text-white font-bold mb-1">Our Address</h4>
                 <p className="text-text-muted text-sm leading-relaxed whitespace-pre-line">
-                  {tenant?.address || '123 Culinary street, \nGourmet District, \nNew Delhi 110001'}
+                  {tenant?.address || '123 Culinary street, \nDineSync District, \nNew Delhi 110001'}
                 </p>
               </div>
             </div>

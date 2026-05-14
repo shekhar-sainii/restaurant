@@ -110,7 +110,7 @@ const Login = () => {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="admin@gourmet.hub"
+                  placeholder="admin@dinesync.com"
                   className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-primary/40 transition-all placeholder:text-white/10 text-sm"
                 />
               </div>

@@ -14,7 +14,7 @@ const PlatformBranding = () => {
   const [platform, setPlatform] = useState({
     heroTitle: 'The Elite Epicurean Collection',
     heroSubtitle: 'Explore a curated selection of the finest multi-tenant restaurants. Every plate tells a story of passion and excellence.',
-    brandName: 'Gourmet Hub',
+    brandName: 'DineSync',
     theme: {
       primaryColor: '#c9a227',
       backgroundColor: '#050505',

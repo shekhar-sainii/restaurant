@@ -24,7 +24,7 @@ const Home = () => {
             Savor the Art <br className="hidden sm:block" /> of <span className="text-primary italic">Fine Dining</span>
           </h1>
           <p className="text-base md:text-xl text-text-muted mb-12 max-w-2xl mx-auto font-light leading-relaxed">
-            From vintage harvests to artisan gourmets, experience a culinary journey 
+            From vintage harvests to artisan culinary creations, experience a culinary journey 
             crafted with professional passion and premium seasonal ingredients.
           </p>
 

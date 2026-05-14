@@ -178,7 +178,7 @@ const Orders = () => {
     <div className="max-w-4xl mx-auto px-6 py-20 min-h-screen text-white">
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
         <div>
-          <span className="text-[10px] font-black uppercase tracking-[0.3em] mb-4 block" style={{ color: primary }}>Gourmet Timeline</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] mb-4 block" style={{ color: primary }}>DineSync Timeline</span>
           <h1 className="text-4xl md:text-6xl font-playfair font-bold tracking-tight">Active <span className="italic" style={{ color: primary }}>Orders</span></h1>
         </div>
         <button onClick={loadOrders} className="p-4 rounded-2xl glass border border-white/10 transition-all text-text-muted shadow-2xl group" 
