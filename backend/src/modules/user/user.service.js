@@ -1,12 +1,12 @@
 const userRepository = require("./user.repository");
 
 class UserService {
-  async getUserProfile(userId) {
-    return await userRepository.findById(userId);
+  async getUserProfile(db, userId) {
+    return await userRepository.findById(db, userId);
   }
 
-  async updateProfile(userId, updateData) {
-    return await userRepository.updateById(userId, updateData);
+  async updateProfile(db, userId, updateData) {
+    return await userRepository.updateById(db, userId, updateData);
   }
 }
 

@@ -5,7 +5,7 @@ const httpStatus = require("../../utils/httpStatus");
 
 class UserController {
   getProfile = asyncHandler(async (req, res) => {
-    const user = await userService.getUserProfile(req.user._id);
+    const user = await userService.getUserProfile(req.db, req.user._id);
     return res.status(httpStatus.OK).json(new ApiResponse(httpStatus.OK, user));
   });
 
@@ -17,7 +17,7 @@ class UserController {
       updateData.image = `/uploads/${req.file.filename}`;
     }
 
-    const user = await userService.updateProfile(req.user._id, updateData);
+    const user = await userService.updateProfile(req.db, req.user._id, updateData);
     return res.status(httpStatus.OK).json(new ApiResponse(httpStatus.OK, user, "Profile updated"));
   });
 
