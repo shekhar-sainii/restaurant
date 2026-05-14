@@ -13,8 +13,13 @@ const { getTenantConnection, getMasterConnection } = require("../config/tenantDb
  *   req.db        — mongoose.Connection for this tenant's database
  */
 const resolveTenant = asyncHandler(async (req, res, next) => {
-  // Super admin bypasses tenant resolution — uses master connection
-  if (req.user?.role === "SUPER_ADMIN") {
+  const slug =
+    req.headers["x-tenant-slug"] ||
+    req.query.tenant ||
+    req.user?.tenantId;
+
+  // If Super Admin accesses a global view without a specific tenant header, use master connection
+  if (req.user?.role === "SUPER_ADMIN" && !slug) {
     req.tenantId = null;
     req.tenant   = null;
     req.db       = getMasterConnection();

@@ -54,6 +54,55 @@ const Checkout = () => {
   const [isDetecting, setIsDetecting] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
 
+  // Phase 2 Promotional rule evaluation state arrays
+  const [couponCodeInput, setCouponCodeInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponMessage, setCouponMessage] = useState({ text: '', type: '' });
+
+  const handleApplyCoupon = () => {
+    setCouponMessage({ text: '', type: '' });
+    const formatted = couponCodeInput.trim().toUpperCase().replace(/\s+/g, '');
+    if (!formatted) return;
+
+    try {
+      const raw = localStorage.getItem('dinesync_tenant_coupons');
+      const storeCoupons = raw ? JSON.parse(raw) : [
+        { code: 'WELCOME10', type: 'PERCENT', value: 10, minOrder: 199, isActive: true },
+        { code: 'FLAT50', type: 'FLAT', value: 50, minOrder: 299, isActive: true }
+      ];
+
+      const found = storeCoupons.find(c => c.code === formatted && c.isActive !== false);
+      if (!found) {
+        setCouponMessage({ text: 'Invalid or deactivated promotional string.', type: 'error' });
+        return;
+      }
+
+      if (found.minOrder > 0 && cartTotal < found.minOrder) {
+        setCouponMessage({ text: `Requires minimum cart selection value of ₹${found.minOrder}`, type: 'error' });
+        return;
+      }
+
+      setAppliedCoupon(found);
+      setCouponMessage({ text: `Applied "${found.code}" successfully!`, type: 'success' });
+    } catch {
+      setCouponMessage({ text: 'Evaluation engine encountered malformed metadata.', type: 'error' });
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponMessage({ text: '', type: '' });
+    setCouponCodeInput('');
+  };
+
+  const discountAmount = appliedCoupon ? (
+    appliedCoupon.type === 'PERCENT' 
+      ? Math.round((cartTotal * appliedCoupon.value) / 100) 
+      : appliedCoupon.value
+  ) : 0;
+
+  const finalPayableTotal = Math.max(0, cartTotal - discountAmount);
+
   const showError = (msg) => {
     setErrorMessage(msg);
     setTimeout(() => setErrorMessage(null), 4000);
@@ -123,7 +172,7 @@ const Checkout = () => {
         items: cartItems,
         orderType,
         paymentMethod: paymentMode === 'cod' ? 'CASH' : 'UPI',
-        totalAmount: cartTotal,
+        totalAmount: finalPayableTotal,
         tenantId,
         ...(orderType === 'DINING' ? { tableNumber: parseInt(tableNumber) } : { deliveryAddress: address })
       };
@@ -353,16 +402,16 @@ const Checkout = () => {
                      <div className="flex flex-col sm:flex-row items-center gap-6">
                         <div className="bg-white p-3 rounded-2xl shadow-xl flex-shrink-0">
                            <img 
-                             src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`upi://pay?pa=${selectedUpiType === 'primary' ? (tenant?.paymentSettings?.upiIdPrimary || 'merchant@upi') : (tenant?.paymentSettings?.upiIdSecondary || 'merchant@upi')}&pn=${encodeURIComponent(tenant?.businessName || 'Pizza King')}&am=${cartTotal}&cu=INR&tn=${encodeURIComponent('Order Checkout')}`)}`} 
+                             src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`upi://pay?pa=${selectedUpiType === 'primary' ? (tenant?.paymentSettings?.upiIdPrimary || 'merchant@upi') : (tenant?.paymentSettings?.upiIdSecondary || 'merchant@upi')}&pn=${encodeURIComponent(tenant?.businessName || 'Pizza King')}&am=${finalPayableTotal}&cu=INR&tn=${encodeURIComponent('Order Checkout')}`)}`} 
                              alt="UPI QR" 
                              className="w-32 h-32" 
                            />
                         </div>
                         
                         <div className="flex-1 space-y-3 w-full">
-                           <p className="text-[10px] text-text-muted italic leading-relaxed">Scan this QR with any UPI app (GPay, PhonePe, Paytm) to initiate payment of <span className="text-white font-bold">₹{cartTotal}</span>.</p>
+                           <p className="text-[10px] text-text-muted italic leading-relaxed">Scan this QR with any UPI app (GPay, PhonePe, Paytm) to initiate payment of <span className="text-white font-bold">₹{finalPayableTotal}</span>.</p>
                            <a 
-                             href={`upi://pay?pa=${selectedUpiType === 'primary' ? (tenant?.paymentSettings?.upiIdPrimary || 'merchant@upi') : (tenant?.paymentSettings?.upiIdSecondary || 'merchant@upi')}&pn=${encodeURIComponent(tenant?.businessName || 'Pizza King')}&am=${cartTotal}&cu=INR&tn=${encodeURIComponent('Order Checkout')}`}
+                             href={`upi://pay?pa=${selectedUpiType === 'primary' ? (tenant?.paymentSettings?.upiIdPrimary || 'merchant@upi') : (tenant?.paymentSettings?.upiIdSecondary || 'merchant@upi')}&pn=${encodeURIComponent(tenant?.businessName || 'Pizza King')}&am=${finalPayableTotal}&cu=INR&tn=${encodeURIComponent('Order Checkout')}`}
                              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-[9px] font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-all"
                            >
                               <Smartphone size={14} /> Use Phone App
@@ -399,15 +448,75 @@ const Checkout = () => {
                ))}
              </div>
              <div className="space-y-3 pt-4 border-t border-white/5">
-                <div className="flex justify-between text-[10px] uppercase font-bold opacity-50"><span>Subtotal</span><span>₹{cartTotal}</span></div>
-                <div className="flex justify-between items-end pt-2">
-                   <span className="text-[9px] uppercase font-bold tracking-widest opacity-40">Total Amount</span>
-                   <span className="text-2xl font-bold" style={{ color: primary }}>₹{cartTotal}</span>
-                </div>
-             </div>
-             <button onClick={handlePlaceOrder} disabled={orderStatus === 'loading' || cartItems.length === 0} className="w-full py-4 mt-6 rounded-xl font-bold uppercase text-[10px] tracking-widest shadow-xl transition-all hover:opacity-90 active:scale-95 text-black" style={{ backgroundColor: primary }}>
-                  {orderStatus === 'loading' ? <Loader2 className="animate-spin mx-auto text-black" size={18} /> : 'Place Order'}
-             </button>
+                 <div className="flex justify-between text-[10px] uppercase font-bold opacity-50"><span>Subtotal</span><span>₹{cartTotal}</span></div>
+                 
+                 {appliedCoupon && (
+                   <div className="flex justify-between text-[10px] uppercase font-bold text-green-400 bg-green-500/5 p-2 rounded-lg border border-green-500/10">
+                     <span className="flex items-center gap-1">
+                       🏷️ {appliedCoupon.code} ({appliedCoupon.type === 'PERCENT' ? `${appliedCoupon.value}%` : `₹${appliedCoupon.value}`})
+                     </span>
+                     <span>- ₹{discountAmount}</span>
+                   </div>
+                 )}
+
+                 <div className="flex justify-between items-end pt-2">
+                    <span className="text-[9px] uppercase font-bold tracking-widest opacity-40">Payable Total</span>
+                    <span className="text-2xl font-bold" style={{ color: primary }}>₹{finalPayableTotal}</span>
+                 </div>
+              </div>
+
+              {/* Dynamic Promotional Coupon Apply Interface */}
+              <div className="pt-4 mt-4 border-t border-white/5 space-y-2">
+                 {!appliedCoupon ? (
+                   <div className="space-y-2">
+                     <div className="flex gap-2">
+                       <input 
+                         type="text" 
+                         placeholder="Have a Promo Coupon?"
+                         value={couponCodeInput}
+                         onChange={e => setCouponCodeInput(e.target.value)}
+                         className="flex-1 bg-white/[0.03] border border-white/10 rounded-xl px-3 py-2 text-xs uppercase font-mono outline-none focus:border-primary/40 text-white placeholder:text-white/20 placeholder:normal-case"
+                       />
+                       <button 
+                         onClick={handleApplyCoupon}
+                         className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-[9px] font-black uppercase tracking-widest text-white transition-all cursor-pointer shrink-0"
+                       >
+                         Apply
+                       </button>
+                     </div>
+                     {couponMessage.text && (
+                       <p className={`text-[9px] font-bold px-1 ${couponMessage.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>
+                         {couponMessage.text}
+                       </p>
+                     )}
+                   </div>
+                 ) : (
+                   <div className="flex items-center justify-between bg-primary/10 border border-primary/20 px-3 py-2 rounded-xl">
+                     <div className="flex flex-col">
+                       <span className="text-[9px] font-bold text-text-muted uppercase tracking-widest">Active Coupon</span>
+                       <span className="text-xs font-mono font-bold text-white">{appliedCoupon.code}</span>
+                     </div>
+                     <button 
+                       onClick={handleRemoveCoupon}
+                       className="text-[9px] text-red-400 hover:text-red-300 font-bold uppercase underline cursor-pointer"
+                     >
+                       Remove
+                     </button>
+                   </div>
+                 )}
+
+                 {/* Account Wallet Credit Preview Indicator */}
+                 <div className="bg-white/5 rounded-xl p-2.5 border border-white/5 flex items-center gap-2 mt-2">
+                   <span className="text-xs">🎁</span>
+                   <p className="text-[8px] text-text-muted leading-tight">
+                     Earn <span className="text-white font-bold">{Math.round(finalPayableTotal * 0.05)} pts</span> cashback in your account loyalty wallet on delivery confirmation!
+                   </p>
+                 </div>
+              </div>
+
+              <button onClick={handlePlaceOrder} disabled={orderStatus === 'loading' || cartItems.length === 0} className="w-full py-4 mt-6 rounded-xl font-bold uppercase text-[10px] tracking-widest shadow-xl transition-all hover:opacity-90 active:scale-95 text-black cursor-pointer" style={{ backgroundColor: primary }}>
+                   {orderStatus === 'loading' ? <Loader2 className="animate-spin mx-auto text-black" size={18} /> : 'Place Order'}
+              </button>
           </div>
         </div>
       </div>
