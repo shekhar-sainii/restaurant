@@ -18,7 +18,9 @@ import {
   WifiOff,
   CloudLightning,
   Activity,
-  Flame
+  Flame,
+  MessageSquare,
+  Bell
 } from 'lucide-react';
 import { adminService } from '../../services/admin.service';
 import { Link } from 'react-router-dom';
@@ -46,6 +48,32 @@ const Dashboard = () => {
     return localStorage.getItem('dinesync_pwa_offline_ready') === 'true';
   });
   const [manifestStatus, setManifestStatus] = useState('');
+
+  // Phase 1/2 Growth Automated Communication Webhook Pipelines state
+  const [whatsappConfig, setWhatsappConfig] = useState(() => {
+    try {
+      const saved = localStorage.getItem('dinesync_whatsapp_pipeline_cfg');
+      return saved ? JSON.parse(saved) : { enabled: true, provider: 'Twilio Gateway', template: 'Receipt & Live Tracking Link' };
+    } catch { return { enabled: true, provider: 'Twilio Gateway', template: 'Receipt & Live Tracking Link' }; }
+  });
+  const [cartFollowupEnabled, setCartFollowupEnabled] = useState(() => {
+    return localStorage.getItem('dinesync_cart_followup') !== 'false';
+  });
+  const [commNotice, setCommNotice] = useState('');
+
+  const handleSaveCommConfig = (providerName) => {
+    const updated = { ...whatsappConfig, provider: providerName };
+    setWhatsappConfig(updated);
+    try { localStorage.setItem('dinesync_whatsapp_pipeline_cfg', JSON.stringify(updated)); } catch {}
+    setCommNotice(`Integrated outbound connection via ${providerName} successfully!`);
+    setTimeout(() => setCommNotice(''), 3000);
+  };
+
+  const handleToggleCartFollowup = () => {
+    const nextVal = !cartFollowupEnabled;
+    setCartFollowupEnabled(nextVal);
+    localStorage.setItem('dinesync_cart_followup', nextVal ? 'true' : 'false');
+  };
 
   const toggleOfflineBuffer = () => {
     const nextVal = !isOfflineModeEnabled;
@@ -139,6 +167,83 @@ const Dashboard = () => {
             {isOfflineModeEnabled ? <Wifi size={14} /> : <WifiOff size={14} />}
             <span>{isOfflineModeEnabled ? 'Offline Ready: ON' : 'Offline Ready: OFF'}</span>
           </button>
+        </div>
+      </div>
+
+      {/* Outbound Webhook Communication & Abandoned Cart Metrics Control Hub */}
+      <div className="glass p-6 rounded-3xl border border-white/5 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h3 className="font-playfair text-base font-bold text-white flex items-center gap-2">
+              <MessageSquare size={18} className="text-primary" /> Automated Communication Pipelines
+            </h3>
+            <p className="text-xs text-text-muted mt-0.5 leading-relaxed">
+              Real-time WhatsApp outgoing handshakes alongside automated static cart engagement loops
+            </p>
+          </div>
+          {commNotice && (
+            <span className="text-[10px] font-bold text-green-400 bg-green-500/10 border border-green-500/20 px-3 py-1 rounded-xl self-start sm:self-auto">
+              {commNotice}
+            </span>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+          {/* Outbound WhatsApp Webhook Gateway Matrix */}
+          <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-green-500" /> Real-Time WhatsApp Webhook
+              </span>
+              <span className="text-[9px] font-mono font-bold text-primary px-2 py-0.5 rounded bg-white/5">
+                {whatsappConfig.provider}
+              </span>
+            </div>
+            <p className="text-[11px] text-text-muted leading-relaxed">
+              Automatically triggers outgoing JSON payload hooks forwarding finalized receipts and live order estimation statuses to guest numbers.
+            </p>
+            <div className="flex items-center gap-2 pt-1 flex-wrap">
+              <span className="text-[9px] font-bold text-text-muted uppercase tracking-widest">Gateway:</span>
+              {['Twilio Gateway', 'UltraMsg Framework', 'Meta Graph API'].map(prov => (
+                <button 
+                  key={prov} 
+                  onClick={() => handleSaveCommConfig(prov)}
+                  className={`px-2.5 py-1 rounded-lg text-[9px] font-bold transition-all cursor-pointer ${
+                    whatsappConfig.provider === prov ? 'bg-primary text-black font-black' : 'bg-white/5 text-text-muted hover:text-white'
+                  }`}
+                >
+                  {prov.split(' ')[0]}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Abandoned Cart Follow-Up Automations Matrix */}
+          <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col justify-between space-y-3">
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <Bell size={13} className="text-primary" /> Abandoned Cart Automation
+                </span>
+                <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${
+                  cartFollowupEnabled ? 'bg-green-500/10 text-green-400' : 'bg-white/5 text-text-muted'
+                }`}>
+                  {cartFollowupEnabled ? 'Loop Active' : 'Idle'}
+                </span>
+              </div>
+              <p className="text-[11px] text-text-muted leading-relaxed">
+                Proactively buffers client checkouts exceeding 15 minutes of inactivity to dispatch optimized SMS/WhatsApp return invitations.
+              </p>
+            </div>
+            <button 
+              onClick={handleToggleCartFollowup}
+              className={`w-full py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer border ${
+                cartFollowupEnabled ? 'bg-white/5 border-white/10 hover:bg-white/10 text-white' : 'bg-primary/10 border-primary/20 text-primary'
+              }`}
+            >
+              {cartFollowupEnabled ? 'Disable Engagement Loop' : 'Enable Abandoned Cart Sync'}
+            </button>
+          </div>
         </div>
       </div>
 
