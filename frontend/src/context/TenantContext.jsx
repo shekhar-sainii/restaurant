@@ -5,7 +5,7 @@ import { resolveTheme, applyThemeToDom } from '../config/themes.config';
 
 const TenantContext = createContext(null);
 
-export const useTenant = () => useContext(TenantContext);
+export const useTenant = () => useContext(TenantContext) || { tenant: null, slug: localStorage.getItem('tenant_slug') || '', theme: null };
 
 export const TenantProvider = ({ children }) => {
   const { slug }      = useParams();
