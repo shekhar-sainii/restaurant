@@ -27,7 +27,7 @@ const TenantLanding = lazy(() => import('./pages/public/TenantLanding'));
 // Reserved slugs that must NOT be treated as tenant slugs
 const RESERVED_SLUGS = new Set([
   'super-admin', 'admin', 'login', 'register', 'menu', 'cart',
-  'checkout', 'orders', 'profile', 'about', 'unauthorized', 'health',
+  'checkout', 'orders', 'profile', 'about', 'unauthorized', 'health', 'reset-password',
 ]);
 
 // Guard: only render TenantProvider for non-reserved slugs

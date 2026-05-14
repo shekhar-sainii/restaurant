@@ -29,6 +29,12 @@ export const ROUTES = [
     layout: 'main',
     isProtected: false,
   },
+  {
+    path: '/reset-password',
+    component: lazy(() => import('../pages/auth/ResetPassword')),
+    layout: 'main',
+    isProtected: false,
+  },
 
   // User Protected Routes (Shared across auth)
   {

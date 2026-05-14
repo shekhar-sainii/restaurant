@@ -17,6 +17,28 @@ const Login = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
 
+  // Forgot Password sub-states
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotMsg, setForgotMsg] = useState('');
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    if (!forgotEmail) return;
+    setForgotLoading(true); setForgotMsg('');
+    try {
+      const { default: api } = await import('../../services/api');
+      const r = await api.post('/auth/forgot-password', { email: forgotEmail });
+      setForgotMsg(r.data?.message || 'Password reset link sent successfully!');
+      setForgotEmail('');
+    } catch (err) {
+      setForgotMsg(err.response?.data?.message || 'Failed to send reset link');
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
   // Redirect on successful login
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -115,6 +137,15 @@ const Login = () => {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+              <div className="flex justify-end pt-1">
+                <button
+                  type="button"
+                  onClick={() => { setShowForgotModal(true); setForgotMsg(''); setForgotEmail(''); }}
+                  className="text-[10px] text-text-muted hover:text-primary font-bold transition-colors"
+                >
+                  Forgot Password?
+                </button>
+              </div>
             </div>
 
             <button
@@ -172,6 +203,47 @@ const Login = () => {
             </div>
           </div>
         </div>
+
+        {/* Forgot Password Modal Overlay */}
+        {showForgotModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setShowForgotModal(false)} />
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative w-full max-w-md bg-bg-dark border border-white/10 rounded-[2.5rem] p-8 shadow-2xl space-y-6">
+              <header className="text-center">
+                <h3 className="text-2xl font-playfair font-bold text-white mb-1">Reset Password</h3>
+                <p className="text-xs text-text-muted">Enter your registered email address to receive secure reset instructions</p>
+              </header>
+
+              {forgotMsg && (
+                <div className={`p-3 rounded-xl text-xs font-bold text-center ${forgotMsg.includes('success') ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+                  {forgotMsg}
+                </div>
+              )}
+
+              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <div>
+                  <input
+                    type="email"
+                    required
+                    placeholder="name@example.com"
+                    value={forgotEmail}
+                    onChange={e => setForgotEmail(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm text-white outline-none focus:border-primary/40 transition-all text-center"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <button type="button" onClick={() => setShowForgotModal(false)} className="flex-1 py-3 rounded-xl border border-white/10 text-text-muted hover:text-white text-xs font-bold transition-all">
+                    Close
+                  </button>
+                  <button type="submit" disabled={forgotLoading} className="flex-1 py-3 rounded-xl bg-primary text-black font-black uppercase tracking-widest text-xs transition-all disabled:opacity-50">
+                    {forgotLoading ? 'Sending...' : 'Send Link'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
       </motion.div>
     </div>
   );
